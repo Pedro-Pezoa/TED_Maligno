@@ -30,6 +30,16 @@ Matriz::CRow Matriz::operator[](const int& row)
 	return Matriz::CRow(*this, row);
 }
 
+int Matriz::getWidth() const
+{
+	return this->width;
+}
+
+int Matriz::getHeight() const
+{
+	return this->height;
+}
+
 void Matriz::adicionar(int x, int y)
 {
 	bool linha = this->existeLinha(x);

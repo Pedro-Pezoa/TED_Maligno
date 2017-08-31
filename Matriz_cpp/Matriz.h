@@ -30,7 +30,9 @@ public:
 	Matriz(const Matriz &novaMatriz);
 	Matriz(int sizeX, int sizeY, int novoValorNormal, int novoValorExiste);
 
-	Matriz::CRow operator[](const int& row) ;
+	Matriz::CRow operator[](const int& row);
+	int getWidth() const;
+	int getHeight() const;
 	
 protected:
 	void adicionar(int x, int y);
