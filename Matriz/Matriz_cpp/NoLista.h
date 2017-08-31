@@ -1,4 +1,9 @@
 #pragma once
+using namespace std;
+#include <iostream>
+#include <ostream>
+#include <string>
+
 template <class Tipo> class ListaDupla;
 template <class Tipo>
 class NoLista
@@ -8,9 +13,7 @@ public:
 	//-------------------------------------------------------------CONSTRUTORES/DESTRUTOR--------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	NoLista() : prox(nullptr), ante(nullptr), dado(nullptr)
-	{
-	}
+	NoLista() : prox(nullptr), ante(nullptr), dado(nullptr){}
 
 	NoLista(const Tipo &novoDado)
 	{
@@ -80,6 +83,11 @@ public:
 	void setProximo(NoLista &NovoProx)
 	{
 		this->prox = &NovoProx;
+	}
+
+	friend ostream& operator<<(ostream &sai, const NoLista<Tipo>& outro)
+	{
+		return (sai << *(outro.getDado()) << endl);
 	}
 	friend class ListaDupla<Tipo>;
 protected:
