@@ -30,6 +30,12 @@
     <ClInclude Include="NoArvore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Pilha.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NoLista.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -42,6 +48,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NoArvore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pilha.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NoLista.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

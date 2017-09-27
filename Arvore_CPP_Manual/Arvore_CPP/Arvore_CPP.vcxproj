@@ -147,6 +147,8 @@
   <ItemGroup>
     <ClInclude Include="Arvore.h" />
     <ClInclude Include="NoArvore.h" />
+    <ClInclude Include="NoLista.h" />
+    <ClInclude Include="Pilha.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -154,6 +156,8 @@
     <ClCompile Include="Arvore.cpp" />
     <ClCompile Include="Arvore_CPP.cpp" />
     <ClCompile Include="NoArvore.cpp" />
+    <ClCompile Include="NoLista.cpp" />
+    <ClCompile Include="Pilha.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
