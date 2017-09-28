@@ -1,6 +1,10 @@
 #pragma once
 using namespace std;
 #include "NoLista.h"
+#include <string>
+
+#define TAMANHO_PILHA 100
+typedef bool(*fn)(int a, int b);
 
 template <class Tipo>
 class Pilha
@@ -10,42 +14,21 @@ public:
 	//-------------------------------------------------------------CONSTRUTORES/DESTRUTOR--------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	Pilha(const unsigned int novoTamanhoMax) : tamanhoMax(novoTamanhoMax), tamanhoAtual(0)
+	Pilha(const unsigned int novoTamanhoMax) : tamanhoMax(novoTamanhoMax), topo(-1)
 	{
-		NoLista<Tipo> *pont = (NoLista<Tipo>*)malloc(novoTamanhoMax * sizeof(NoLista<Tipo>));
-		for (int i = 0; i < novoTamanhoMax; i++)
-		{
-			*(pont + i) = NoLista<Tipo>();
-			(pont + i)->setDado(Tipo());
-			if (i != 0)
-				(pont+i)->setAnterior(*(pont + i - 1));
-		}
-		for (int i = 0; i < tamanhoMax; i++)
-			if (i != tamanhoMax - 1)
-				(pont + i)->setProximo(*(pont + i + 1));
-		this->alocaNo(pont, novoTamanhoMax);
+		this->nos = (NoLista<Tipo>*)malloc(novoTamanhoMax*sizeof(int));
 	}
 
-	Pilha(const Pilha<Tipo> &original) : tamanhoMax(original.tamanhoMax), tamanhoAtual(original.tamanhoAtual)
+	Pilha(const Pilha<Tipo> &original) : tamanhoMax(original.tamanhoMax), topo(original.topo)
 	{
-		this->alocaNo(original.nos, original.tamanhoMax);
+		this->nos = (NoLista<Tipo>*)malloc(original.tamanhoMax*sizeof(int));
+		for (int i = 0; i <= original.topo; i++)
+			this->empilhar(original.nos + i);
 	}
 
-	Pilha() : tamanhoMax(50), tamanhoAtual(0)
+	Pilha() : tamanhoMax(TAMANHO_PILHA), topo(-1)
 	{
-		NoLista<Tipo> *pont = (NoLista<Tipo>*)malloc(tamanhoMax * sizeof(NoLista<Tipo>));
-		for (int i = 0; i < tamanhoMax; i++)
-		{
-			*(pont + i) = NoLista<Tipo>();
-			(pont + i)->setDado(Tipo());
-			if (i != 0)
-				(pont+i)->setAnterior(*(pont + i - 1));
-		}
-		for (int i = 0; i < tamanhoMax; i++)
-			if (i != tamanhoMax - 1)
-				(pont + i)->setProximo(*(pont + i + 1));
-
-		this->alocaNo(pont, 50);
+		this->nos = (NoLista<Tipo>*)malloc(TAMANHO_PILHA*sizeof(int));
 	}
 
 	~Pilha()
@@ -75,99 +58,88 @@ public:
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	//----------------------------------------------------------------MÉTODOS PRINCIPAIS---------------------------------------------------------------------//
+	//----------------------------------------------------------------GETTERS E SETTERS----------------------------------------------------------------------//
+	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+	int length() const
+	{
+		return this->tamanhoMax;
+	}
+
+	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+	//---------------------------------------------------------------METODOS AUXILIARES----------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	bool ehCheia() const
 	{
-		return this->tamanhoAtual >= this->tamanhoMax;
+		return this->topo >= this->tamanhoMax;
 	}
 
 	bool ehVazia() const
 	{
-		return this->tamanhoAtual <= 0;
+		return this->topo < 0;
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	//---------------------------------------------------------------GETTERS E SETTERS-----------------------------------------------------------------------//
+	//----------------------------------------------------------------MÉTODOS PRINCIPAIS---------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-	int length() const
+	bool empilhar(const Tipo& novoNo)
 	{
-		return this->tamanhoAtual;
+		if (this->ehCheia())
+			return false;
+		NoLista<Tipo> no = NoLista<Tipo>(novoNo);
+		*(this->nos + ++this->topo) = no;
+		return true;
 	}
 
-	String toString() const
+	NoLista<Tipo> desempilhar()
 	{
-		String txt = String();
-		for (int i = 0; i < this->tamanhoAtual; i++)
-			txt = txt + (this->nos + i)->getDado().toString();
-		return String(txt + " " + (int)this->tamanhoAtual + " " + (int)this->tamanhoMax + "\n");
+		if (!this->ehVazia())
+			return *(this->nos + this->topo--);
+	}
+
+	void esvaziar()
+	{
+		while (!this->ehVazia())
+			this->desempilhar();
+	}
+
+	void esvaziar(fn funcao, const Tipo &tipo)
+	{
+		while (!this->ehVazia())
+		{
+			if ((*funcao)(tipo, this->topo))
+				this->desempilhar();
+			else
+				return;
+		}
+	}
+
+	NoLista<Tipo> getTopo() const
+	{
+		return *(this->nos + this->topo);
+	}
+
+	friend ostream& operator<< (ostream &os, const Pilha<Tipo> &aPilha)
+	{
+		return (os << aPilha.toString());
 	}
 
 	friend class NotepadCPP;
 protected:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	//----------------------------------------------------------------MÉTODOS AUXILIARES---------------------------------------------------------------------//
+	//-------------------------------------------------------------------METODO APOCALIPTICO-----------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	NoLista<Tipo> valorDe(const int &indice) const
+	string toString() const
 	{
-		return *(this->acoes + indice);
-	}
-
-	void alocaNo(const NoLista<Tipo> *novoNo, const unsigned int tam)
-	{
-		this->nos = (NoLista<Tipo>*)malloc(tam * sizeof(NoLista<Tipo>));
-		for (int i = 0; i < tam; i++)
-			*(this->nos + i) = *(novoNo + i);
-	}
-
-	NoLista<Tipo> empilhar(const Tipo& feita)
-	{
-		if (&feita == NULL) throw "Ação Inválida";
-
-		NoLista<Tipo>* no = new NoLista<Tipo>(feita);
-		if (this->ehCheia())
-		{
-			NoLista<Tipo> acc = *(this->nos + 0);
-			for (int i = 0; i < this->tamanhoAtual; i++)
-				*(this->nos + i) = *(this->nos + (i + 1));
-			this->tamanhoAtual--;
-			this->empilhar(feita);
-			return acc;
-		}
-		else if (this->ehVazia())
-		{
-			*(this->nos + this->tamanhoAtual++) = *no;
-			return NoLista<Tipo>();
-		}
-
-		(this->nos + (this->tamanhoAtual - 1))->setProximo(no);
-		no->setAnterior((this->nos + (this->tamanhoAtual - 1)));
-		*(this->nos + this->tamanhoAtual++) = *no;
-		return NoLista<Tipo>();
-	}
-
-	NoLista<Tipo> desempilhar()
-	{
-		if (this->ehVazia()) throw "Pilha Vazia";
-		return *(this->nos + --this->tamanhoAtual);
-	}
-
-	void esvaziar()
-	{
-		while (!this->ehVazia()) this->desempilhar();
-	}
-
-	NoLista<Tipo> getTopo() const
-	{
-		if (this->tamanhoAtual == 0) return *(this->nos + this->tamanhoAtual);
-		return *(this->nos + (this->tamanhoAtual - 1));
+		string txt = "[ ";
+		for (int i = 0; i <= this->topo; i++)
+			txt += to_string((this->nos + i)->getDado()) + "; ";
+		return txt + "]";
 	}
 private:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//-------------------------------------------------------------------ATRIBUTOS---------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	NoLista<Tipo> *nos;
-	unsigned int tamanhoMax, tamanhoAtual;
+	int tamanhoMax, topo;
 };
