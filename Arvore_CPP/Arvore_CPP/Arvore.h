@@ -493,7 +493,9 @@ class Arvore
 					noFE->setEsquerda(nullptr);
 					noFFD->setPai(no->getPai());
 					no->setPai(noFFD);
-					no->setDireita(nullptr);
+					no->setDireita(noFFD->getEsquerda());
+					if (no->getDireita() != nullptr)
+						no->getDireita()->setPai(no);
 					noFE->setPai(noFFD);
 					noFFD->setEsquerda(no);
 					noFFD->setDireita(noFE);
@@ -513,7 +515,7 @@ class Arvore
 			if (!verificaBalanceamento(this->raiz))
 			{
 				// se não, temos que ajustar
-				cout << "BOT> Desbalanceou a arvore" << endl;
+				cout << "BOT> Desbalanceou a arvore na raiz " << this->raiz->getDado() << endl;
 				// se é exclusão
 				if (tipo == 1)
 				{
@@ -552,7 +554,8 @@ class Arvore
 					// enquanto não está balanceado
 					} while (!(verificaBalanceamento(this->raiz)));
 				}
-				cout << "BOT> Tentativa de balanceamento realizada" << endl;
+				cout << "BOT> Tentativa de balanceamento realizada com nova raiz " << this->raiz->getDado() << endl;
+				cout << *this << endl;
 			}
 			else
 			{

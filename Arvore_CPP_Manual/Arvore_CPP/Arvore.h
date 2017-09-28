@@ -221,6 +221,7 @@ class Arvore
 				}
 			}
 			// se for igual, não inclúi
+			/// ACABANDO UMA RECURSÃO
 			return;
 		}
 
@@ -228,7 +229,10 @@ class Arvore
 		void incluirSubArvore(NoArvore<Tipo> *no)
 		{
 			if (no == nullptr)
+			{
+				/// ACABANDO UMA RECURSÃO
 				return;
+			}
 
 			incluir(no->getDado());
 
@@ -236,19 +240,24 @@ class Arvore
 			incluirSubArvore(no->getDireita());
 			/// RECURSÃO DO NOH PARA ESQUERDA
 			incluirSubArvore(no->getEsquerda());
+			/// ACABANDO UMA RECURSÃO
 		}
 
 		// exclúi (deleta) uma subárvore inteira (não precisa estar na árvore)
 		void excluirSubArvore(NoArvore<Tipo> *no)
 		{
 			if (no == nullptr)
+			{
+				/// ACABANDO UMA RECURSÃO
 				return;
+			}
 
 			/// RECURSÃO DO NOH PARA DIREITA
 			excluirSubArvore(no->getDireita());
 			/// RECURSÃO DO NOH PARA ESQUERDA
 			excluirSubArvore(no->getEsquerda());
 			no = nullptr;
+			/// ACABANDO UMA RECURSÃO
 		}
 
 		// exclúi recursivamente o nó com o dado desejado
@@ -256,7 +265,10 @@ class Arvore
 		{
 			// nó inexistente
 			if (atual == nullptr)
+			{
+				/// ACABANDO UMA RECURSÃO
 				return false;
+			}
 
 			if (dado == atual->getDado())
 			{
@@ -305,16 +317,19 @@ class Arvore
 
 					atual = nullptr;
 				}
+				/// ACABANDO UMA RECURSÃO
 				return true;
 			}
 			else if (dado < atual->getDado())
 			{
 				/// RECURSÃO DO NOH PARA ESQUERDA
+				/// ACABANDO UMA RECURSÃO
 				return this->excluirRecur(dado, atual->getEsquerda());
 			}
 			else
 			{
 				/// RECURSÃO DO NOH PARA DIREITA
+				/// ACABANDO UMA RECURSÃO
 				return this->excluirRecur(dado, atual->getDireita());
 			}
 		}
@@ -323,13 +338,17 @@ class Arvore
 		void maiorNivelRecur(NoArvore<Tipo>* no, int aux, int* maior)
 		{
 			if (no == nullptr)
+			{
+				/// ACABANDO UMA RECURSÃO
 				return;
+			}
 
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 			{
 				// coloca no maior se o nível da folha for maior que o maior antigo
 				if (aux > *maior)
 					*maior = aux;
+				/// ACABANDO UMA RECURSÃO
 				return;
 			}
 
@@ -337,6 +356,7 @@ class Arvore
 			maiorNivelRecur(no->getDireita(), aux+1, maior);
 			/// RECURSÃO DO NOH PARA ESQUERDA
 			maiorNivelRecur(no->getEsquerda(), aux+1, maior);
+			/// ACABANDO UMA RECURSÃO
 		}
 
 		// retorna a maior altura de um nó
@@ -354,17 +374,24 @@ class Arvore
 		{
 			// se não existe, consideramos balanceado o nó
 			if (no == nullptr)
+			{
+				/// ACABANDO UMA RECURSÃO
 				return true;
+			}
 
 			// se for folha, consideramos balanceado o nó
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
+			{
+				/// ACABANDO UMA RECURSÃO
 				return true;
+			}
 
 			// retornamos se o nó está balanceado, juntamente com os seus filhos
 			int countD = maiorNivel(no->getDireita());
 			int countE = maiorNivel(no->getEsquerda());
 
 			/// RECURSÂO PARA AMBOS OS LADOS (só armazenar os valores)
+			/// ACABANDO UMA RECURSÃO
 			return (abs(countD-countE)) < 2 && verificaBalanceamento(no->getEsquerda()) && verificaBalanceamento(no->getDireita());
 		}
 
@@ -421,26 +448,39 @@ class Arvore
 		{
 			// se não existe, consideramos não há nó errado
 			if (no == nullptr)
+			{
+				/// ACABANDO UMA RECURSÃO
 				return nullptr;
+			}
 
 			// procuramos o nó que está errado para a direita
+			/// RECURSÃO PARA A DIREITA
 			NoArvore<Tipo>* achado = acharNoErroneo(no->getDireita());
 			if (achado == nullptr)
 			{
 				// se não achamos, procuramos o nó que está errado para a esquerda
+				/// RECURSÃO PARA A ESQUERDA
 				achado = acharNoErroneo(no->getEsquerda());
 				if (achado != nullptr)
 					// se achamos, retornamos ele
+					/// ACABANDO UMA RECURSÃO
 					return achado;
 			}
 			else
+			{
 				// se achamos, retornamos ele
+				/// ACABANDO UMA RECURSÃO
 				return achado;
+			}
 
 			// se o nó atual está desbalanceado, retornamos ele
 			if (!verificaBalanceamentoSingle(no))
+			{
+				/// ACABANDO UMA RECURSÃO
 				return no;
+			}
 			//retornamos nulo se nada está balanceado
+			/// ACABANDO UMA RECURSÃO
 			return nullptr;
 				
 		}
