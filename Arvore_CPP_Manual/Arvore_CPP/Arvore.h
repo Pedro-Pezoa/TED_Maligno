@@ -3,9 +3,13 @@
 #include "stdio.h"
 #include <iostream>
 #include <string>
+#include "Pilha.h"
+
 using namespace std;
 #define GIRO_PARA_ESQUERDA 0
 #define GIRO_PARA_DIREITA 1
+
+
 
 template <class Tipo>
 class Arvore
@@ -38,7 +42,7 @@ class Arvore
 		}
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-		//--------------------------------------------------------------------MÉTODOS----------------------------------------------------------------------------//
+		//---------------------------------------------------------------MÉTODOS PRINCIPAIS----------------------------------------------------------------------//
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	
 		// método excluir um dado
@@ -79,9 +83,7 @@ class Arvore
 				}
 				// quando a raiz é folha
 				else
-				{
 					this->raiz = nullptr;
-				}
 			}
 			else
 			{
@@ -112,7 +114,7 @@ class Arvore
 			// mostramos que incluímos
 			cout << "BOT> Incluido o " << novoDado << endl;
 			// incluímos
-			this->incluir(novoDado, raiz);
+			this->incluirRecur(novoDado, raiz);
 			// balanceamos
 			this->balancear(0, novoDado);
 		}
@@ -130,6 +132,56 @@ class Arvore
 		}
 
 	protected:
+		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+		//--------------------------------------------------------------------STRUCTS----------------------------------------------------------------------------//
+		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+		typedef struct IEmpilhavel {};
+		typedef struct structToString : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+			string strEsq;
+			string strDir;
+		};
+
+		typedef struct structIncluirRecur : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+		};
+
+		typedef struct structIncluirSubArvore : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+		};
+
+		typedef struct structExcluirSubArvore : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+		};
+
+		typedef struct structVerificaBalanceamento : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+		};
+
+		typedef struct structAcharNoErroneo : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+		};
+
+		typedef struct structExcluirRecur : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+		};
+
+		typedef struct structMaiorNivelRecur : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+		};
+
+		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+		//------------------------------------------------------------------METODOS AUXILIARES-------------------------------------------------------------------//
+		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
+
 		string toString(NoArvore<Tipo> *no) const 
 		{
 			// método recursivo que coloca os da esquerda e os da direita e o próprio
@@ -137,7 +189,8 @@ class Arvore
 				return "";
 
 			/// RECURSÃO PRA TUDO QUANTO É LADO (só vai na horizontal)
-			return ((no->getEsquerda()==nullptr)?"": ("("+this->toString(no->getEsquerda()) + ")<-")) + "(" + to_string(no->getDado()) + ")" + ((no->getDireita() == nullptr) ? "" : ("->("+this->toString(no->getDireita())+")"));
+			return ((no->getEsquerda()==nullptr)?"": ("("+this->toString(no->getEsquerda()) + ")<-")) + "(" + to_string(no->getDado()) + ")" + 
+				   ((no->getDireita() == nullptr) ? "" : ("->("+this->toString(no->getDireita())+")"));
 		}
 
 		// retorna o nó que possúi o dado a ser achado
@@ -192,14 +245,14 @@ class Arvore
 		}
 
 		// inclúi recursivamente o dado entregue embaixo do nó dado, se possível
-		void incluir(const Tipo &novoDado, NoArvore<Tipo> *no)
+		void incluirRecur(const Tipo &novoDado, NoArvore<Tipo> *no)
 		{
 			if (novoDado > no->getDado())
 			{
 				if (no->getDireita() != nullptr)
 				{
 					/// RECURSÃO DO NOH PARA DIREITA
-					incluir(novoDado, no->getDireita());
+					incluirRecur(novoDado, no->getDireita());
 				}
 				else // if(direita é null)
 				{
@@ -212,7 +265,7 @@ class Arvore
 				if (no->getEsquerda() != nullptr)
 				{
 					/// RECURSÃO DO NOH PARA ESQUERDA
-					incluir(novoDado, no->getEsquerda());
+					incluirRecur(novoDado, no->getEsquerda());
 				}
 				else // if(esquerda é null)
 				{
@@ -275,13 +328,9 @@ class Arvore
 				if (atual->isFolha()) // se é folha, só excluir normal
 				{
 					if (atual->getDirecaoPai() == PAI_ESQUERDA)
-					{
 						atual->getPai()->setDireita(nullptr);
-					}
 					else
-					{
 						atual->getPai()->setEsquerda(nullptr);
-					}
 					atual = nullptr;
 				}
 				else if (atual->getEsquerda() == nullptr) // precisamos fazer quase que uma rotação
@@ -628,5 +677,6 @@ class Arvore
 
 		// raiz da árvore inteira
 		NoArvore<Tipo> *raiz;
+		Pilha<IEmpilhavel> pilha;
 	private:
 };
