@@ -8,6 +8,7 @@
 using namespace std;
 #define GIRO_PARA_ESQUERDA 0
 #define GIRO_PARA_DIREITA 1
+#define TIPO_STRUCT_TOSTRING 1
 
 
 
@@ -135,62 +136,138 @@ class Arvore
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//--------------------------------------------------------------------STRUCTS----------------------------------------------------------------------------//
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-		typedef struct IEmpilhavel {};
+		typedef struct IEmpilhavel 
+		{
+			unsigned int indicacao;
+			unsigned int tipo;
+		};
 		typedef struct structToString : IEmpilhavel
 		{
-			NoArvore<Tipo> *no;
+			NoArvore<Tipo> no;
 			string strEsq;
 			string strDir;
+			tipo = TIPO_STRUCT_TOSTRING;
 		};
 
 		typedef struct structIncluirRecur : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
+			tipo = 2;
 		};
 
 		typedef struct structIncluirSubArvore : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
+			tipo = 3;
 		};
 
 		typedef struct structExcluirSubArvore : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
+			tipo = 4;
 		};
 
 		typedef struct structVerificaBalanceamento : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
+			int countD;
+			int countE;
+			tipo = 5;
 		};
 
 		typedef struct structAcharNoErroneo : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
+			NoArvore<Tipo>* achado;
+			tipo = 6;
 		};
 
 		typedef struct structExcluirRecur : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
+			tipo = 7;
 		};
 
 		typedef struct structMaiorNivelRecur : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
+			tipo = 8;
 		};
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//------------------------------------------------------------------METODOS AUXILIARES-------------------------------------------------------------------//
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-		string toString(NoArvore<Tipo> *no) const 
+		bool podeDesempilharProximo(Tipo a, Tipo b)
 		{
-			// método recursivo que coloca os da esquerda e os da direita e o próprio
+			if (a == b)
+				return true;
+			return false;
+		}
+
+		// método recursivo que coloca os da esquerda e os da direita e o próprio
+		string toString(NoArvore<Tipo> no) const 
+		{
+			string noEsquerda = "", noDireita = "";
+			structToString aStruct;
+			inicio:
 			if (no == nullptr)
-				return "";
+			{
+				aStruct = (structToString)pilha.desempilhar();
+				no = aStruct.no;
+				noEsquerda = aStruct.noEsquerda;
+				noDireita = aStruct.noDireita;
+				if (indicacao == 0)
+					goto inicio;
+				if (indicacao == 1)
+					goto retNaoNulo;
+				if (indicacao == 2)
+					goto retNoEsquerda;
+				if (indicacao == 3)
+					goto retNoDireita;
+				//return "";
+			}
+
+			retNaoNulo:
+			if (no->getEsquerda() != nullptr)
+			{
+				//noEsquerda = "(" + this->toString(no->getEsquerda()) + ")<-";
+				aStruct.no = no;
+				aStruct.noEsquerda = noEsquerda;
+				aStruct.noDireita = noDireita;
+				aStruct.indicacao = 2;
+				pilha.empilhar(aStruct);
+				noEsquerda = "";
+				noDireita = "";
+				no = *(no->getEsquerda());
+				goto inicio;
+			}
+			retNoEsquerda:
+			if (no->getDireita() != nullptr)
+			{
+				//noDireita = "(" + this->toString(no->getDireita()) + ")<-";
+				aStruct.no = no;
+				aStruct.noEsquerda = noEsquerda;
+				aStruct.noDireita = noDireita;
+				aStruct.indicacao = 3;
+				pilha.empilhar(aStruct);
+				noEsquerda = "";
+				noDireita = "";
+				no = *(no->getDireita());
+				goto inicio;
+			}
+			retNoDireita:
 
 			/// RECURSÃO PRA TUDO QUANTO É LADO (só vai na horizontal)
-			return ((no->getEsquerda()==nullptr)?"": ("("+this->toString(no->getEsquerda()) + ")<-")) + "(" + to_string(no->getDado()) + ")" + 
-				   ((no->getDireita() == nullptr) ? "" : ("->("+this->toString(no->getDireita())+")"));
+			// if (pilha.consegueDesempilharDoMesmoTipo())
+			if (pilha.desempilhar(podeDesempilharProximo, TIPO_STRUCT_TOSTRING))
+			{
+
+			}
+			else
+			{
+				return noEsquerda + "(" + to_string(no->getDado()) + ")" + noDireita;
+			}
 		}
 
 		// retorna o nó que possúi o dado a ser achado
@@ -384,7 +461,7 @@ class Arvore
 		}
 
 		// método recursivo que coloca no "maior" o valor do maior nó errado
-		void maiorNivelRecur(NoArvore<Tipo>* no, int aux, int* maior)
+		void maiorNivelRecur(NoArvore<Tipo>* no, const int &aux, int* maior)
 		{
 			if (no == nullptr)
 			{

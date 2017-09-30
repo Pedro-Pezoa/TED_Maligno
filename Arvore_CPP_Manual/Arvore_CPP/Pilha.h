@@ -5,6 +5,7 @@ using namespace std;
 
 #define TAMANHO_PILHA 100
 typedef bool(*fn)(int a, int b);
+typedef bool(*fnPodeDesempilhar)(int a, int b);
 
 template <class Tipo>
 class Pilha
@@ -50,11 +51,11 @@ public:
 		Pilha<Tipo> aux;
 		for (int i = outro.length()-1; i > -1; i--)
 		{
-			aux.empilhar(outro.desempilhar().getDado());
+			aux.empilhar(outro.desempilhar());
 			*(this->nos + i) = (aux.getTopo());
 		}
 		while (!aux.ehVazia())
-			outro.empilhar(aux.desempilhar().getDado());
+			outro.empilhar(aux.desempilhar());
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -91,10 +92,17 @@ public:
 		return true;
 	}
 
-	NoLista<Tipo> desempilhar()
+	Tipo desempilhar()
 	{
 		if (!this->ehVazia())
-			return *(this->nos + this->topo--);
+			return *(this->nos + this->topo--).getDado();
+	}
+
+	Tipo desempilhar(fnPodeDesempilhar funcao, const Tipo &tipo)
+	{
+		if (!this->ehVazia() || (*funcao)(*(this->nos + this->topo).getDado(), tipo))
+			return *(this->nos + this->topo--).getDado();
+		return nullptr;
 	}
 
 	void esvaziar()
