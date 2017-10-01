@@ -274,8 +274,13 @@ class Arvore
 				no = new NoArvore<Tipo>(no->getDireita());
 				goto inicio;
 			}
-			retNoDireita:
-			retorno = noEsquerda + "(" + to_string(no->getDado()) + ")" + noDireita;
+		retNoDireita:
+			retorno = "";
+			if (noEsquerda != "")
+				retorno = "(" + noEsquerda + ")<-";
+			retorno += "[" + to_string(no->getDado()) + "]";
+			if (noDireita != "")
+				retorno += "->(" + noDireita + ")";
 			/// RECURSÃO PRA TUDO QUANTO É LADO (só vai na horizontal)
 			// if (pilha.consegueDesempilharDoMesmoTipo())
 			if (dynamic_cast<structToString*>(pilha.getTopo()))
