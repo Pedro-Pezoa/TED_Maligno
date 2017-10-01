@@ -28,10 +28,6 @@ bool ehNumero(string str)
 }
 */
 
-bool merda(int i, int j)
-{
-	return false;
-}
 int main()
 {
 	/*
@@ -98,22 +94,18 @@ int main()
 		cout << arv << endl;
 	}
 	*/
+	Arvore<int> arv;
 
-	Pilha<int> pilha;
-	for (int i = 0; i < 10; i++)
-		pilha.empilhar(i);
-	cout << pilha << endl;
-
-	NoLista<int> ir = pilha.desempilhar();
-	pilha.desempilhar();
-	pilha.desempilhar();
-	cout << ir.getDado() << endl;
-	cout << pilha << endl;
-
-	fn birl = &merda;
-
-	pilha.esvaziar(birl, 1);
-	cout << pilha << endl;
+	arv.incluir(6);
+	arv.incluir(4);
+	arv.incluir(8);
+	arv.incluir(5);
+	arv.incluir(3);
+	arv.incluir(7);
+	arv.incluir(9);
+	cout << arv << endl;
+	arv.incluir(10);
+	cout << arv << endl;
 
 	char borl = 0;
 	cin >> borl;

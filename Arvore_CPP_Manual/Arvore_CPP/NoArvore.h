@@ -25,12 +25,12 @@ class NoArvore
 			dado = new Tipo(novoDado.getDado());
 		}
 
-		NoArvore(NoArvore<Tipo> *novoDado)
+		NoArvore(const NoArvore<Tipo> *novoDado)
 		{
 			this->dado = new Tipo(novoDado->getDado());
-			this->dir = nullptr;
-			this->esq = nullptr;
-			this->pai = nullptr;
+			this->dir = novoDado->getDireita();
+			this->esq = novoDado->getEsquerda();
+			this->pai = novoDado->getPai();
 		}
 
 		NoArvore(NoArvore<Tipo> *novoDado, NoArvore<Tipo> *novoEsquerda, NoArvore<Tipo> *novoDireita, NoArvore<Tipo> *novoPai) : dado(novoDado->getDado()), esq(novoEsquerda), dir(novoDireita), pai(novoPai){}
@@ -113,6 +113,11 @@ class NoArvore
 		bool isFolha()
 		{
 			return (this->dir == nullptr && this->esq == nullptr);
+		}
+
+		NoArvore<Tipo> clone() const
+		{
+			return new NoArvore<Tipo>(this);
 		}
 	protected:
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//

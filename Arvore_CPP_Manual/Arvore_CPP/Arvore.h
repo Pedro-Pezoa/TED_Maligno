@@ -120,153 +120,188 @@ class Arvore
 			this->balancear(0, novoDado);
 		}
 
-		friend ostream& operator<< (ostream &os, const Arvore<Tipo> &aArvore)
+		friend ostream& operator<< (ostream &os, Arvore<Tipo> &aArvore)
 		{
 			// escrevemos o valor da árvore
 			return (os << "TREE> " << aArvore.toString());
 		}
 
-		string toString() const
+		string toString()
 		{
 			// retornamos o conteúdo da árvore desde a raiz
 			return this->toString(this->raiz);
 		}
-
+		friend class Pilha<Tipo>;
 	protected:
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//--------------------------------------------------------------------STRUCTS----------------------------------------------------------------------------//
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-		typedef struct IEmpilhavel 
+		struct IEmpilhavel 
 		{
 			unsigned int indicacao;
 			unsigned int tipo;
+			virtual ~IEmpilhavel() {};
+			virtual IEmpilhavel* clone()
+			{
+				IEmpilhavel* ret = new IEmpilhavel();
+				ret->indicacao = this->indicacao;
+				ret->tipo = this->tipo;
+				return ret;
+			};
 		};
-		typedef struct structToString : IEmpilhavel
+		struct structToString : public IEmpilhavel
 		{
-			NoArvore<Tipo> no;
-			string strEsq;
-			string strDir;
-			tipo = TIPO_STRUCT_TOSTRING;
+			NoArvore<Tipo>* no;
+			string noEsquerda;
+			string noDireita;
+			structToString()
+			{
+				tipo = TIPO_STRUCT_TOSTRING;
+			}
+			structToString* clone()
+			{
+				return new structToString(this->no, this->noEsquerda, this->noDireita, indicacao);
+			}
+		protected:
+			structToString(const NoArvore<Tipo>* novoNo, const string &noEsquerda, const string &noDireita, const int &indicacaoNova) : noEsquerda(noEsquerda), noDireita(noDireita)
+			{
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+				tipo = TIPO_STRUCT_TOSTRING;
+				indicacao = indicacaoNova;
+			}
 		};
 
 		typedef struct structIncluirRecur : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
-			tipo = 2;
-		};
+			structIncluirRecur() {
+				tipo = 2;
+			}
+		}structIncluirRecur;
 
 		typedef struct structIncluirSubArvore : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
-			tipo = 3;
-		};
+			structIncluirSubArvore() {
+				tipo = 3;
+			}
+		}structIncluirSubArvore;
 
 		typedef struct structExcluirSubArvore : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
-			tipo = 4;
-		};
+			structExcluirSubArvore() {
+				tipo = 4;
+			}
+		}structExcluirSubArvore;
 
 		typedef struct structVerificaBalanceamento : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
 			int countD;
 			int countE;
-			tipo = 5;
-		};
+			structVerificaBalanceamento() {
+				tipo = 5;
+			}
+		}structVerificaBalanceamento;
 
 		typedef struct structAcharNoErroneo : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
 			NoArvore<Tipo>* achado;
-			tipo = 6;
-		};
+			structAcharNoErroneo() {
+				tipo = 6;
+			}
+		}structAcharNoErroneo;
 
 		typedef struct structExcluirRecur : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
-			tipo = 7;
-		};
+			structExcluirRecur() {
+				tipo = 7;
+			}
+		}structExcluirRecur;
 
 		typedef struct structMaiorNivelRecur : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
-			tipo = 8;
-		};
+			structMaiorNivelRecur() {
+				tipo = 8;
+			}
+		}structMaiorNivelRecur;
 
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//------------------------------------------------------------------METODOS AUXILIARES-------------------------------------------------------------------//
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-		bool podeDesempilharProximo(Tipo a, Tipo b)
-		{
-			if (a == b)
-				return true;
-			return false;
-		}
-
+		
 		// método recursivo que coloca os da esquerda e os da direita e o próprio
-		string toString(NoArvore<Tipo> no) const 
+		string toString(const NoArvore<Tipo> *noParam) 
 		{
-			string noEsquerda = "", noDireita = "";
-			structToString aStruct;
+			if (noParam == nullptr)
+				return "";
+			string noEsquerda = "", noDireita = "", retorno = "";
+			structToString* aStruct = new structToString();
+			NoArvore<Tipo> *no = new NoArvore<Tipo>(noParam);
 			inicio:
-			if (no == nullptr)
-			{
-				aStruct = (structToString)pilha.desempilhar();
-				no = aStruct.no;
-				noEsquerda = aStruct.noEsquerda;
-				noDireita = aStruct.noDireita;
-				if (indicacao == 0)
-					goto inicio;
-				if (indicacao == 1)
-					goto retNaoNulo;
-				if (indicacao == 2)
-					goto retNoEsquerda;
-				if (indicacao == 3)
-					goto retNoDireita;
-				//return "";
-			}
-
-			retNaoNulo:
 			if (no->getEsquerda() != nullptr)
 			{
 				//noEsquerda = "(" + this->toString(no->getEsquerda()) + ")<-";
-				aStruct.no = no;
-				aStruct.noEsquerda = noEsquerda;
-				aStruct.noDireita = noDireita;
-				aStruct.indicacao = 2;
+				aStruct->no = new NoArvore<Tipo>(no);
+				aStruct->noEsquerda = noEsquerda;
+				aStruct->noDireita = noDireita;
+				aStruct->indicacao = 1;
 				pilha.empilhar(aStruct);
 				noEsquerda = "";
 				noDireita = "";
-				no = *(no->getEsquerda());
+				no = new NoArvore<Tipo>(no->getEsquerda());
 				goto inicio;
 			}
 			retNoEsquerda:
 			if (no->getDireita() != nullptr)
 			{
 				//noDireita = "(" + this->toString(no->getDireita()) + ")<-";
-				aStruct.no = no;
-				aStruct.noEsquerda = noEsquerda;
-				aStruct.noDireita = noDireita;
-				aStruct.indicacao = 3;
+				aStruct->no = new NoArvore<Tipo>(no);
+				aStruct->noEsquerda = noEsquerda;
+				aStruct->noDireita = noDireita;
+				aStruct->indicacao = 2;
 				pilha.empilhar(aStruct);
 				noEsquerda = "";
 				noDireita = "";
-				no = *(no->getDireita());
+				no = new NoArvore<Tipo>(no->getDireita());
 				goto inicio;
 			}
 			retNoDireita:
-
+			retorno = noEsquerda + "(" + to_string(no->getDado()) + ")" + noDireita;
 			/// RECURSÃO PRA TUDO QUANTO É LADO (só vai na horizontal)
 			// if (pilha.consegueDesempilharDoMesmoTipo())
-			if (pilha.desempilhar(podeDesempilharProximo, TIPO_STRUCT_TOSTRING))
+			if (dynamic_cast<structToString*>(pilha.getTopo()))
 			{
-
+				bool paiDireto = (no->getDirecaoPai() == PAI_DIREITA);
+				aStruct = dynamic_cast<structToString*>(pilha.desempilhar());
+				no = aStruct->no;
+				if (paiDireto)
+				{
+					noEsquerda = retorno;
+					noDireita = aStruct->noDireita;
+				}
+				else
+				{
+					noDireita = retorno;
+					noEsquerda = aStruct->noEsquerda;
+				}
+				if (aStruct->indicacao == 0)
+					goto inicio;
+				if (aStruct->indicacao == 1)
+					goto retNoEsquerda;
+				goto retNoDireita;
 			}
 			else
 			{
-				return noEsquerda + "(" + to_string(no->getDado()) + ")" + noDireita;
+				return retorno;
 			}
 		}
 
@@ -754,6 +789,6 @@ class Arvore
 
 		// raiz da árvore inteira
 		NoArvore<Tipo> *raiz;
-		Pilha<IEmpilhavel> pilha;
+		Pilha<IEmpilhavel*> pilha;
 	private:
 };

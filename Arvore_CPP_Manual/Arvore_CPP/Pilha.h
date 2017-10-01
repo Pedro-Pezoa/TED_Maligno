@@ -1,11 +1,9 @@
 #pragma once
 using namespace std;
-#include "NoLista.h"
 #include <string>
 
 #define TAMANHO_PILHA 100
 typedef bool(*fn)(int a, int b);
-typedef bool(*fnPodeDesempilhar)(int a, int b);
 
 template <class Tipo>
 class Pilha
@@ -17,19 +15,19 @@ public:
 
 	Pilha(const unsigned int novoTamanhoMax) : tamanhoMax(novoTamanhoMax), topo(-1)
 	{
-		this->nos = (NoLista<Tipo>*)malloc(novoTamanhoMax*sizeof(int));
+		this->nos = (Tipo*)malloc(novoTamanhoMax*sizeof(Tipo));
 	}
 
 	Pilha(const Pilha<Tipo> &original) : tamanhoMax(original.tamanhoMax), topo(original.topo)
 	{
-		this->nos = (NoLista<Tipo>*)malloc(original.tamanhoMax*sizeof(int));
+		this->nos = (Tipo*)malloc(original.tamanhoMax*sizeof(Tipo));
 		for (int i = 0; i <= original.topo; i++)
-			this->empilhar(original.nos + i);
+			this->nos[i] = novoDado;
 	}
 
 	Pilha() : tamanhoMax(TAMANHO_PILHA), topo(-1)
 	{
-		this->nos = (NoLista<Tipo>*)malloc(TAMANHO_PILHA*sizeof(int));
+		this->nos = (Tipo*)malloc(TAMANHO_PILHA*sizeof(Tipo));
 	}
 
 	~Pilha()
@@ -52,7 +50,7 @@ public:
 		for (int i = outro.length()-1; i > -1; i--)
 		{
 			aux.empilhar(outro.desempilhar());
-			*(this->nos + i) = (aux.getTopo());
+			this->nos[i] = (aux.getTopo());
 		}
 		while (!aux.ehVazia())
 			outro.empilhar(aux.desempilhar());
@@ -83,26 +81,19 @@ public:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//----------------------------------------------------------------MÉTODOS PRINCIPAIS---------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	bool empilhar(const Tipo& novoNo)
+	bool empilhar(const Tipo& novoDado)
 	{
 		if (this->ehCheia())
 			return false;
-		NoLista<Tipo> no = NoLista<Tipo>(novoNo);
-		*(this->nos + ++this->topo) = no;
+		this->nos[++this->topo] = novoDado->clone();
 		return true;
 	}
 
 	Tipo desempilhar()
 	{
 		if (!this->ehVazia())
-			return *(this->nos + this->topo--).getDado();
-	}
-
-	Tipo desempilhar(fnPodeDesempilhar funcao, const Tipo &tipo)
-	{
-		if (!this->ehVazia() || (*funcao)(*(this->nos + this->topo).getDado(), tipo))
-			return *(this->nos + this->topo--).getDado();
-		return nullptr;
+			return (this->nos[this->topo--]);
+		return NULL;
 	}
 
 	void esvaziar()
@@ -122,9 +113,12 @@ public:
 		}
 	}
 
-	NoLista<Tipo> getTopo() const
+	Tipo getTopo() const
 	{
-		return *(this->nos + this->topo);
+		if (!this->ehVazia())
+			return this->nos[this->topo];
+		else
+			return NULL;
 	}
 
 	friend ostream& operator<< (ostream &os, const Pilha<Tipo> &aPilha)
@@ -132,7 +126,7 @@ public:
 		return (os << aPilha.toString());
 	}
 
-	friend class NotepadCPP;
+	friend class Arvore<Tipo>;
 protected:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//-------------------------------------------------------------------METODO APOCALIPTICO-----------------------------------------------------------------//
@@ -141,13 +135,13 @@ protected:
 	{
 		string txt = "[ ";
 		for (int i = 0; i <= this->topo; i++)
-			txt += to_string((this->nos + i)->getDado()) + "; ";
+			txt += to_string(this->nos[i]) + "; ";
 		return txt + "]";
 	}
 private:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//-------------------------------------------------------------------ATRIBUTOS---------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	NoLista<Tipo> *nos;
+	Tipo *nos;
 	int tamanhoMax, topo;
 };

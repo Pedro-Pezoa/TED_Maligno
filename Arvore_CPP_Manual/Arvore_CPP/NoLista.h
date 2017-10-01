@@ -49,7 +49,7 @@ public:
 		return *dado;
 	}
 
-	Tipo getPontDado() const
+	Tipo* getPontDado() const
 	{
 		return dado;
 	}
