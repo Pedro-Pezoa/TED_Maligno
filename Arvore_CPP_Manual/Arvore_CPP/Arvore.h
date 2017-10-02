@@ -9,8 +9,13 @@ using namespace std;
 #define GIRO_PARA_ESQUERDA 0
 #define GIRO_PARA_DIREITA 1
 #define TIPO_STRUCT_TOSTRING 1
-
-
+#define TIPO_STRUCT_INCLUIRRECUR 2
+#define TIPO_STRUCT_INCLUIRSUBARVORE 3
+#define TIPO_STRUCT_EXCLUIRSUBARVORE 4
+#define TIPO_STRUCT_VERIFICABALANCEAMENTO 5
+#define TIPO_STRUCT_ACHARNOERRONEO 6
+#define TIPO_STRUCT_EXCLUIRRECUR 7
+#define TIPO_STRUCT_MAIORNIVELRECUR 8
 
 template <class Tipo>
 class Arvore
@@ -175,13 +180,27 @@ class Arvore
 			}
 		};
 
-		typedef struct structIncluirRecur : IEmpilhavel
+		struct structIncluirRecur : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
 			structIncluirRecur() {
-				tipo = 2;
+				tipo = TIPO_STRUCT_INCLUIRRECUR;
 			}
-		}structIncluirRecur;
+			structIncluirRecur* clone()
+			{
+				return new structIncluirRecur(no);
+			}
+		protected:
+			structIncluirRecur(const NoArvore<Tipo>* novoNo)
+			{
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+				tipo = TIPO_STRUCT_INCLUIRRECUR;
+			}
+		};
 
 		typedef struct structIncluirSubArvore : IEmpilhavel
 		{
@@ -191,13 +210,27 @@ class Arvore
 			}
 		}structIncluirSubArvore;
 
-		typedef struct structExcluirSubArvore : IEmpilhavel
+		struct structExcluirSubArvore : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
 			structExcluirSubArvore() {
-				tipo = 4;
+				tipo = TIPO_STRUCT_EXCLUIRSUBARVORE;
 			}
-		}structExcluirSubArvore;
+			structExcluirSubArvore* clone()
+			{
+				return new structExcluirSubArvore(this->no);
+			}
+		protected:
+			structExcluirSubArvore(const NoArvore<Tipo> *novoNo)
+			{
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+				tipo = TIPO_STRUCT_EXCLUIRSUBARVORE;
+			}
+		};
 
 		typedef struct structVerificaBalanceamento : IEmpilhavel
 		{
@@ -209,14 +242,33 @@ class Arvore
 			}
 		}structVerificaBalanceamento;
 
-		typedef struct structAcharNoErroneo : IEmpilhavel
+		struct structAcharNoErroneo : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
 			NoArvore<Tipo>* achado;
 			structAcharNoErroneo() {
-				tipo = 6;
+				tipo = TIPO_STRUCT_ACHARNOERRONEO;
 			}
-		}structAcharNoErroneo;
+			structAcharNoErroneo* clone()
+			{
+				return new structAcharNoErroneo(no, achado);
+			}
+		protected:
+			structAcharNoErroneo(const NoArvore<Tipo> *novoNo, const NoArvore<Tipo>* achado)
+			{
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+				this->achado = new NoArvore<Tipo>();
+				this->achado->setPai(achado->getPai());
+				this->achado->setEsquerda(achado->getEsquerda());
+				this->achado->setDireita(achado->getDireita());
+				this->achado->setDado(achado->getDado());
+				tipo = TIPO_STRUCT_ACHARNOERRONEO;
+			}
+		};
 
 		typedef struct structExcluirRecur : IEmpilhavel
 		{
@@ -361,15 +413,20 @@ class Arvore
 			return aux;
 		}
 
-		// inclúi recursivamente o dado entregue embaixo do nó dado, se possível
 		void incluirRecur(const Tipo &novoDado, NoArvore<Tipo> *no)
 		{
+			structIncluirRecur* aStruct = new structIncluirRecur();
+			inicio:
 			if (novoDado > no->getDado())
 			{
 				if (no->getDireita() != nullptr)
 				{
 					/// RECURSÃO DO NOH PARA DIREITA
-					incluirRecur(novoDado, no->getDireita());
+					//incluirRecur(novoDado, no->getDireita());
+					aStruct->no = no;
+					pilha.empilhar(aStruct);
+					no = no->getDireita();
+					goto inicio;
 				}
 				else // if(direita é null)
 				{
@@ -382,7 +439,11 @@ class Arvore
 				if (no->getEsquerda() != nullptr)
 				{
 					/// RECURSÃO DO NOH PARA ESQUERDA
-					incluirRecur(novoDado, no->getEsquerda());
+					//incluirRecur(novoDado, no->getEsquerda());
+					aStruct->no = no;
+					pilha.empilhar(aStruct);
+					no = no->getEsquerda();
+					goto inicio;
 				}
 				else // if(esquerda é null)
 				{
@@ -390,9 +451,13 @@ class Arvore
 					no->getEsquerda()->setPai(no);
 				}
 			}
-			// se for igual, não inclúi
-			/// ACABANDO UMA RECURSÃO
-			return;
+			// FIM DE UMA RECURSÃO
+			while (true)
+			{
+				if (!dynamic_cast<structIncluirRecur*>(pilha.getTopo()))
+					break;
+				pilha.desempilhar();
+			}
 		}
 
 		// inclúi uma subárvore inteira embaixo do nó
@@ -417,16 +482,40 @@ class Arvore
 		void excluirSubArvore(NoArvore<Tipo> *no)
 		{
 			if (no == nullptr)
-			{
-				/// ACABANDO UMA RECURSÃO
 				return;
-			}
+			structExcluirSubArvore* aStruct = new structExcluirSubArvore();
+			inicio:
 
 			/// RECURSÃO DO NOH PARA DIREITA
-			excluirSubArvore(no->getDireita());
+			//excluirSubArvore(no->getDireita());
+			if (no->getDireita() != nullptr)
+			{
+				aStruct->no = no;
+				aStruct->indicacao = 1;
+				pilha.empilhar(aStruct);
+				no = no->getDireita();
+				goto inicio;
+			}
+			retDaDireita:
 			/// RECURSÃO DO NOH PARA ESQUERDA
-			excluirSubArvore(no->getEsquerda());
+			if (no->getEsquerda() != nullptr)
+			{
+				//excluirSubArvore(no->getEsquerda());
+				aStruct->no = no;
+				aStruct->indicacao = 2;
+				pilha.empilhar(aStruct);
+				no = no->getEsquerda();
+			}
+			retDaEsquerda:
 			no = nullptr;
+			if (dynamic_cast<structExcluirSubArvore*>(pilha.getTopo()))
+			{
+				aStruct = dynamic_cast<structExcluirSubArvore*>(pilha.desempilhar());
+				no = aStruct->no;
+				if (aStruct->indicacao == 1)
+					goto retDaDireita;
+				goto retDaEsquerda;
+			}
 			/// ACABANDO UMA RECURSÃO
 		}
 
@@ -612,30 +701,44 @@ class Arvore
 		// acha o nó errado na árvore que está mais para baixo (maior altura)
 		NoArvore<Tipo>* acharNoErroneo(NoArvore<Tipo>* no)
 		{
-			// se não existe, consideramos não há nó errado
+			if (no == nullptr)
+				return nullptr;
+			NoArvore<Tipo>* achado;
+			structAcharNoErroneo* aStruct = new structAcharNoErroneo();
+			fn comp = &Arvore<Tipo>::comparaParaEsvaziar;
+			inicio:
 			if (no == nullptr)
 			{
 				/// ACABANDO UMA RECURSÃO
-				return nullptr;
+				aStruct = dynamic_cast<structAcharNoErroneo*>(pilha.desempilhar());
+				no = aStruct->no;
+				achado = aStruct->achado;
+				if (aStruct->indicacao == 1)
+					goto retNoDireita;
+				goto retNoEsquerda;
 			}
 
 			// procuramos o nó que está errado para a direita
 			/// RECURSÃO PARA A DIREITA
-			NoArvore<Tipo>* achado = acharNoErroneo(no->getDireita());
+			achado = acharNoErroneo(no->getDireita());
+			retNoDireita:
 			if (achado == nullptr)
 			{
 				// se não achamos, procuramos o nó que está errado para a esquerda
 				/// RECURSÃO PARA A ESQUERDA
 				achado = acharNoErroneo(no->getEsquerda());
+				retNoEsquerda:
 				if (achado != nullptr)
 					// se achamos, retornamos ele
 					/// ACABANDO UMA RECURSÃO
+					pilha.esvaziar(comp, TIPO_STRUCT_ACHARNOERRONEO);
 					return achado;
 			}
 			else
 			{
 				// se achamos, retornamos ele
 				/// ACABANDO UMA RECURSÃO
+				pilha.esvaziar(comp, TIPO_STRUCT_ACHARNOERRONEO);
 				return achado;
 			}
 
@@ -643,12 +746,22 @@ class Arvore
 			if (!verificaBalanceamentoSingle(no))
 			{
 				/// ACABANDO UMA RECURSÃO
+				pilha.esvaziar(comp, TIPO_STRUCT_ACHARNOERRONEO);
 				return no;
 			}
 			//retornamos nulo se nada está balanceado
 			/// ACABANDO UMA RECURSÃO
-			return nullptr;
-				
+			if (dynamic_cast<structAcharNoErroneo*>(pilha.getTopo()))
+			{
+				aStruct = dynamic_cast<structAcharNoErroneo*>(pilha.desempilhar());
+				no = aStruct->no;
+				achado = aStruct->achado;
+				if (aStruct->indicacao == 1)
+					goto retNoDireita;
+				goto retNoEsquerda;
+			}
+			else
+				return nullptr;
 		}
 
 		// gira a árvore para a direção necessitada
@@ -722,7 +835,9 @@ class Arvore
 					noFE->setEsquerda(nullptr);
 					noFFD->setPai(no->getPai());
 					no->setPai(noFFD);
-					no->setDireita(nullptr);
+					no->setDireita(noFFD->getEsquerda());
+					if (no->getDireita() != nullptr)
+						no->getDireita()->setPai(no);
 					noFE->setPai(noFFD);
 					noFFD->setEsquerda(no);
 					noFFD->setDireita(noFE);
@@ -796,4 +911,8 @@ class Arvore
 		NoArvore<Tipo> *raiz;
 		Pilha<IEmpilhavel*> pilha;
 	private:
+		static bool comparaParaEsvaziar(int a, int b)
+		{
+			return (a == b);
+		}
 };

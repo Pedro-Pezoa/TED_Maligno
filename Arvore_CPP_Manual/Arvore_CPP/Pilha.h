@@ -102,7 +102,7 @@ public:
 			this->desempilhar();
 	}
 
-	void esvaziar(fn funcao, const Tipo &tipo)
+	void esvaziar(fn funcao, const int &tipo)
 	{
 		while (!this->ehVazia())
 		{

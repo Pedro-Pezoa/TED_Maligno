@@ -104,7 +104,7 @@ int main()
 	arv.incluir(7);
 	arv.incluir(9);
 	cout << arv << endl;
-	arv.incluir(10);
+	arv.excluir(4);
 	cout << arv << endl;
 
 	char borl = 0;
