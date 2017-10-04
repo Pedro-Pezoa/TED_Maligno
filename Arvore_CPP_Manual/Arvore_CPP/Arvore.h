@@ -235,12 +235,23 @@ class Arvore
 		typedef struct structVerificaBalanceamento : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
-			int countD;
-			int countE;
 			structVerificaBalanceamento() {
 				tipo = 5;
 			}
-		}structVerificaBalanceamento;
+			structVerificaBalanceamento* clone()
+			{
+				return new structVerificaBalanceamento(this->no);
+			}
+		protected:
+			structVerificaBalanceamento(const NoArvore<Tipo>* novoNo)
+			{
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+			}
+		};
 
 		struct structAcharNoErroneo : IEmpilhavel
 		{
@@ -553,9 +564,9 @@ class Arvore
 					if (atual->getDirecaoPai() == PAI_ESQUERDA)
 						atual->getPai()->setDireita(atual->getEsquerda());
 					else
-						atual->getPai()->setEsquerda(atual->getEsquerda());
-					atual->getEsquerda()->setPai(atual->getPai());
-					atual = nullptr;
+atual->getPai()->setEsquerda(atual->getEsquerda());
+atual->getEsquerda()->setPai(atual->getPai());
+atual = nullptr;
 				}
 				else // tem dois filhos, então nós colocamos qualquer um
 				{
@@ -564,7 +575,7 @@ class Arvore
 					else
 						atual->getPai()->setEsquerda(atual->getEsquerda());
 					atual->getEsquerda()->setPai(atual->getPai());
-					
+
 					// inclui a subárvore da direita na raiz
 					incluirSubArvore(atual->getDireita());
 					// exclui a subárvore da direita
@@ -608,9 +619,9 @@ class Arvore
 			}
 
 			/// RECURSÃO DO NOH PARA DIREITA
-			maiorNivelRecur(no->getDireita(), aux+1, maior);
+			maiorNivelRecur(no->getDireita(), aux + 1, maior);
 			/// RECURSÃO DO NOH PARA ESQUERDA
-			maiorNivelRecur(no->getEsquerda(), aux+1, maior);
+			maiorNivelRecur(no->getEsquerda(), aux + 1, maior);
 			/// ACABANDO UMA RECURSÃO
 		}
 
@@ -629,25 +640,61 @@ class Arvore
 		{
 			// se não existe, consideramos balanceado o nó
 			if (no == nullptr)
-			{
-				/// ACABANDO UMA RECURSÃO
 				return true;
-			}
 
+			int countD = 0;
+			int countE = 0;
+			structVerificaBalanceamento* aStruct = new structVerificaBalanceamento();
+
+		inicio:
 			// se for folha, consideramos balanceado o nó
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 			{
-				/// ACABANDO UMA RECURSÃO
-				return true;
+				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()))
+				{
+					aStruct = dynamic_cast<structVerificaBalanceamento*>(pilha.desempilhar());
+					if (aStruct->no->getEsquerda() == no)
+					{
+						no = aStruct->no;
+						goto direita;
+					}
+					else if (aStruct->no->getDireita() == no)
+					{
+						no = aStruct->no;
+						goto esquerda;
+					}
+					else
+					{
+						no = aStruct->no;
+						goto direita;
+					}
+				}
+				else
+					return true;
 			}
 
 			// retornamos se o nó está balanceado, juntamente com os seus filhos
-			int countD = maiorNivel(no->getDireita());
-			int countE = maiorNivel(no->getEsquerda());
+			if (abs(maiorNivel(no->getDireita()) - maiorNivel(no->getEsquerda())) < 2)
+			{
+				aStruct->no = no;
+				this->pilha.empilhar(aStruct);
 
-			/// RECURSÂO PARA AMBOS OS LADOS (só armazenar os valores)
-			/// ACABANDO UMA RECURSÃO
-			return (abs(countD-countE)) < 2 && verificaBalanceamento(no->getEsquerda()) && verificaBalanceamento(no->getDireita());
+				esquerda:
+				if (no->getEsquerda() != nullptr)
+				{
+					no = no->getEsquerda();
+					goto inicio;
+				}
+
+				direita:
+				if (no->getDireita() != nullptr)
+				{
+					no = no->getDireita();
+					goto inicio;
+				}
+			}
+			else
+				return false;
 		}
 
 		// verifica se o nó específico está balanceado

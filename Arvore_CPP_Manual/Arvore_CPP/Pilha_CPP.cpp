@@ -96,15 +96,10 @@ int main()
 	*/
 	Arvore<int> arv;
 
-	arv.incluir(6);
-	arv.incluir(4);
-	arv.incluir(8);
-	arv.incluir(5);
+	arv.incluir(1);
+	arv.incluir(2);
 	arv.incluir(3);
-	arv.incluir(7);
-	arv.incluir(9);
-	cout << arv << endl;
-	arv.excluir(4);
+
 	cout << arv << endl;
 
 	char borl = 0;
