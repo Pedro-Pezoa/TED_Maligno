@@ -650,7 +650,7 @@ atual = nullptr;
 			// se for folha, consideramos balanceado o nó
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 			{
-				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()))
+				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()) && this->pilha.size() != 1)
 				{
 					aStruct = dynamic_cast<structVerificaBalanceamento*>(pilha.desempilhar());
 					if (aStruct->no->getEsquerda() == no)
