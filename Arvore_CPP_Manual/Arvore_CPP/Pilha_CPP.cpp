@@ -5,7 +5,6 @@
 #include <sstream>
 #include <vector>
 
-/*
 void split(const string &s, char delim, vector<string> *resultado) {
 	stringstream streamDeString; // Um stream de string, para ler/escrever em streams
 	streamDeString.str(s);       // colocamos a nossa string nesse stream
@@ -26,11 +25,9 @@ bool ehNumero(string str)
 	int converted = strtol(str.c_str(), &p, 10); // vemos se "p" tem algo apontado
 	return !(*p); // se tiver, deu errado a conversão, e não tiver, não deu erro
 }
-*/
 
 int main()
 {
-	/*
 	// instanciando variáveis importantes
 	string lido = "";
 	Arvore<int> arv = Arvore<int>();
@@ -93,17 +90,6 @@ int main()
 		// printamos o resultado da árvore, como ela está no momento
 		cout << arv << endl;
 	}
-	*/
 
-	Arvore<int> arv = Arvore<int>();
-
-	arv.incluir(1);
-	arv.incluir(2);
-	arv.incluir(3);
-
-	cout << arv << endl;
-
-	char borl = 0;
-	cin >> borl;
 	return 0; // acabamos o programa
 }

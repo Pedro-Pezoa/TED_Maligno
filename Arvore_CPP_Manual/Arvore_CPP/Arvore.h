@@ -264,6 +264,7 @@ class Arvore
 				this->no->setEsquerda(novoNo->getEsquerda());
 				this->no->setDireita(novoNo->getDireita());
 				this->no->setDado(novoNo->getDado());
+				this->tipo = TIPO_STRUCT_VERIFICABALANCEAMENTO;
 			}
 		};
 
@@ -300,27 +301,6 @@ class Arvore
 			}
 		};
 
-		typedef struct structExcluirRecur : IEmpilhavel
-		{
-			NoArvore<Tipo> *no;
-			structExcluirRecur() {
-				tipo = TIPO_STRUCT_EXCLUIRRECUR;
-			}
-			structExcluirRecur* clone()
-			{
-				return new structExcluirRecur(no);
-			}
-		protected:
-			structExcluirRecur(const NoArvore<Tipo> *no)
-			{
-				this->no = new NoArvore<Tipo>();
-				this->no->setPai(novoNo->getPai());
-				this->no->setEsquerda(novoNo->getEsquerda());
-				this->no->setDireita(novoNo->getDireita());
-				this->no->setDado(novoNo->getDado());
-			}
-		};
-
 		typedef struct structMaiorNivelRecur : IEmpilhavel
 		{
 			NoArvore<Tipo> *no;
@@ -330,16 +310,18 @@ class Arvore
 			}
 			structMaiorNivelRecur* clone()
 			{
-				return new structMaiorNivelRecur(this->no);
+				return new structMaiorNivelRecur(this->no, this->aux);
 			}
 		protected:
-			structMaiorNivelRecur(const NoArvore<Tipo>* novoNo)
+			structMaiorNivelRecur(const NoArvore<Tipo>* novoNo, const int aux)
 			{
 				this->no = new NoArvore<Tipo>();
 				this->no->setPai(novoNo->getPai());
 				this->no->setEsquerda(novoNo->getEsquerda());
 				this->no->setDireita(novoNo->getDireita());
 				this->no->setDado(novoNo->getDado());
+				this->aux = aux;
+				this->tipo = TIPO_STRUCT_MAIORNIVELRECUR;
 			}
 		};
 
@@ -520,12 +502,14 @@ class Arvore
 		// exclúi recursivamente o nó com o dado desejado
 		bool excluirRecur(const Tipo &dado, NoArvore<Tipo> *atual)
 		{
+			Tipo auxTipo = dado;
+			NoArvore<Tipo>* auxNo = nullptr;
+			inicio:
 			// nó inexistente
 			if (atual == nullptr)
 				return false;
 			
-
-			if (dado == atual->getDado())
+			if (auxTipo == atual->getDado())
 			{
 				if (atual->isFolha()) // se é folha, só excluir normal
 				{
@@ -558,32 +542,35 @@ class Arvore
 					if (getNivelMaiorDosMenores(atual) < getNivelMenorDosMaiores(atual))
 					{
 						NoArvore<Tipo> aux = *getMenorDosMaiores(atual);
-						this->excluirRecur(aux.getDado(), this->raiz);
-						atual->setDado(aux.getDado());
+
+						auxNo = atual;
+						atual = this->raiz;
+						auxTipo = aux.getDado();
+						goto inicio;
+						//this->excluirRecur(aux.getDado(), this->raiz);
 					}
 					else
 					{
 						NoArvore<Tipo> aux = *getMaiorDosMenores(atual);
-						this->excluirRecur(aux.getDado(), this->raiz);
-						atual->setDado(aux.getDado());
+
+						auxNo = atual;
+						atual = this->raiz;
+						auxTipo = aux.getDado();
+						goto inicio;
+						//this->excluirRecur(aux.getDado(), this->raiz);
 					}
 					atual = nullptr;
 				}
-				/// ACABANDO UMA RECURSÃO
+				if (auxNo != nullptr)
+					auxNo->setDado(auxTipo);
 				return true;
 			}
-			else if (dado < atual->getDado())
-			{
-				/// RECURSÃO DO NOH PARA ESQUERDA
-				/// ACABANDO UMA RECURSÃO
-				return this->excluirRecur(dado, atual->getEsquerda());
-			}
+			else if (auxTipo < atual->getDado())
+				atual = atual->getEsquerda();
 			else
-			{
-				/// RECURSÃO DO NOH PARA DIREITA
-				/// ACABANDO UMA RECURSÃO
-				return this->excluirRecur(dado, atual->getDireita());
-			}
+				atual = atual->getDireita();
+			
+			goto inicio;
 		}
 
 		// método recursivo que coloca no "maior" o valor do maior nó errado
@@ -725,7 +712,11 @@ class Arvore
 					goto desempilhar;
 			}
 			else
+			{
+				while (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()))
+					this->pilha.desempilhar();
 				return false;
+			}
 		}
 
 		// verifica se o nó específico está balanceado
