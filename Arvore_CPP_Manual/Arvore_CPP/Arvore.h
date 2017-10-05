@@ -281,8 +281,21 @@ class Arvore
 		protected:
 			structAcharNoErroneo(const NoArvore<Tipo> *novoNo, const NoArvore<Tipo>* achado)
 			{
-				this->no = new NoArvore<Tipo>(novoNo);
-				this->achado = new NoArvore<Tipo>(achado);
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+				if (achado == nullptr)
+					this->achado = nullptr;
+				else
+				{
+					this->achado = new NoArvore<Tipo>();
+					this->achado->setPai(achado->getPai());
+					this->achado->setEsquerda(achado->getEsquerda());
+					this->achado->setDireita(achado->getDireita());
+					this->achado->setDado(achado->getDado());
+				}
 				tipo = TIPO_STRUCT_ACHARNOERRONEO;
 			}
 		};
@@ -799,7 +812,7 @@ class Arvore
 			if (no == nullptr)
 				return nullptr;
 			structAcharNoErroneo* aStruct = new structAcharNoErroneo();
-			NoArvore<Tipo>* achado = new NoArvore<Tipo>();
+			NoArvore<Tipo>* achado = nullptr;
 
 		inicio:
 			if (no == nullptr)
@@ -819,24 +832,31 @@ class Arvore
 
 		depoisNulo:
 			//achado = acharNoErroneo(no->getDireita());
-			aStruct->no = no;
-			aStruct->achado = achado;
-			aStruct->indicacao = 2;
-			pilha.empilhar(aStruct);
-			no = no->getDireita();
-			goto inicio;
+			if (no->getDireita() != nullptr)
+			{
+				aStruct->no = no;
+				aStruct->achado = achado;
+				aStruct->indicacao = 2;
+				pilha.empilhar(aStruct);
+				no = no->getDireita();
+				goto inicio;
+			}
+
 		depoisDireita:
 			achado = aStruct->achado;
 			if (achado == nullptr)
 			{
 				// se não achamos, procuramos o nó que está errado para a esquerda
 				//achado = acharNoErroneo(no->getEsquerda());
-				aStruct->no = no;
-				aStruct->achado = achado;
-				aStruct->indicacao = 3;
-				pilha.empilhar(aStruct);
-				no = no->getDireita();
-				goto inicio;
+				if (no->getEsquerda() != nullptr)
+				{
+					aStruct->no = no;
+					aStruct->achado = achado;
+					aStruct->indicacao = 3;
+					pilha.empilhar(aStruct);
+					no = no->getDireita();
+					goto inicio;
+				}
 			depoisEsquerda:
 				if (achado != nullptr)
 				{
