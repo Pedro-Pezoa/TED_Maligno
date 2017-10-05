@@ -291,9 +291,22 @@ class Arvore
 		{
 			NoArvore<Tipo> *no;
 			structExcluirRecur() {
-				tipo = 7;
+				tipo = TIPO_STRUCT_EXCLUIRRECUR;
 			}
-		}structExcluirRecur;
+			structExcluirRecur* clone()
+			{
+				return new structExcluirRecur(no);
+			}
+		protected:
+			structExcluirRecur(const NoArvore<Tipo> *no)
+			{
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+			}
+		};
 
 		typedef struct structMaiorNivelRecur : IEmpilhavel
 		{
