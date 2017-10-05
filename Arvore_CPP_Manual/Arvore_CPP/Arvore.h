@@ -509,10 +509,8 @@ class Arvore
 		{
 			// nó inexistente
 			if (atual == nullptr)
-			{
-				/// ACABANDO UMA RECURSÃO
 				return false;
-			}
+			
 
 			if (dado == atual->getDado())
 			{
@@ -602,34 +600,15 @@ class Arvore
 					}
 					else if (aStruct->no->getDireita() == no)
 					{
-						// coloca no maior se o nível da folha for maior que o maior antigo
-						if (aux > *maior)
-							*maior = aux;
-
-						aStruct = dynamic_cast<structMaiorNivelRecur*>(pilha.desempilhar());
-						if (aStruct->no->getEsquerda() == no)
-						{
-							no = aStruct->no;
-							aux = aStruct->aux;
-							goto direita;
-						}
-						else if (aStruct->no->getDireita() == no)
-						{
-							no = aStruct->no;
-							aux = aStruct->aux;
-							goto esquerda;
-						}
-						else
-						{
-							no = aStruct->no;
-							aux = aStruct->aux;
-							goto direita;
-						}
+						no = aStruct->no;
+						aux = aStruct->aux;
+						goto esquerda;
 					}
 					else
 					{
-						this->pilha.desempilhar();
-						return;
+						no = aStruct->no;
+						aux = aStruct->aux;
+						goto direita;
 					}
 				}
 				else
@@ -685,33 +664,29 @@ class Arvore
 				desempilhar:
 				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()) && this->pilha.size() != 1)
 				{
-					if (this->pilha.size() != 1)
+					aStruct = dynamic_cast<structVerificaBalanceamento*>(pilha.desempilhar());
+					if (aStruct->no->getEsquerda() == no)
 					{
-						aStruct = dynamic_cast<structVerificaBalanceamento*>(pilha.desempilhar());
-						if (aStruct->no->getEsquerda() == no)
-						{
-							no = aStruct->no;
-							goto direita;
-						}
-						else if (aStruct->no->getDireita() == no)
-						{
-							no = aStruct->no;
-							goto esquerda;
-						}
-						else
-						{
-							no = aStruct->no;
-							goto direita;
-						}
+						no = aStruct->no;
+						goto direita;
+					}
+					else if (aStruct->no->getDireita() == no)
+					{
+						no = aStruct->no;
+						goto esquerda;
 					}
 					else
 					{
-						this->pilha.desempilhar();
-						return true;
+						no = aStruct->no;
+						goto direita;
 					}
 				}
 				else
+				{
+					while (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()))
+						this->pilha.desempilhar();
 					return true;
+				}
 			}
 
 			// retornamos se o nó está balanceado, juntamente com os seus filhos
@@ -734,9 +709,7 @@ class Arvore
 					goto inicio;
 				}
 				else
-				{
 					goto desempilhar;
-				}
 			}
 			else
 				return false;
@@ -826,9 +799,9 @@ class Arvore
 			if (no == nullptr)
 				return nullptr;
 			structAcharNoErroneo* aStruct = new structAcharNoErroneo();
-			NoArvore<Tipo>* achado = nullptr;
-			
-			inicio:
+			NoArvore<Tipo>* achado = new NoArvore<Tipo>();
+
+		inicio:
 			if (no == nullptr)
 			{
 				aStruct = dynamic_cast<structAcharNoErroneo*>(pilha.desempilhar());
@@ -880,7 +853,7 @@ class Arvore
 					pilha.desempilhar();
 				return achado;
 			}
-			depoisTudo:
+		depoisTudo:
 			// se o nó atual está desbalanceado, retornamos ele
 			if (!verificaBalanceamentoSingle(no))
 			{
