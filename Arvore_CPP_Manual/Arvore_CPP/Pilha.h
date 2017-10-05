@@ -97,7 +97,11 @@ public:
 	Tipo desempilhar()
 	{
 		if (!this->ehVazia())
-			return (this->nos[this->topo--]);
+		{
+			Tipo no = (this->nos[this->topo])->clone();
+			delete(this->nos[this->topo--]);
+			return no;
+		}
 		return NULL;
 	}
 

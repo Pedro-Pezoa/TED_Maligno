@@ -94,11 +94,16 @@ int main()
 		cout << arv << endl;
 	}
 	*/
+
 	Arvore<int> arv;
 
 	arv.incluir(1);
 	arv.incluir(2);
 	arv.incluir(3);
+	arv.incluir(4);
+	arv.incluir(5);
+	arv.incluir(6);
+	arv.incluir(7);
 
 	cout << arv << endl;
 
