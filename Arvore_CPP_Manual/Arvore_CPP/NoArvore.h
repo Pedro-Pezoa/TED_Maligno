@@ -27,10 +27,20 @@ class NoArvore
 
 		NoArvore(const NoArvore<Tipo> *novoDado)
 		{
-			this->dado = new Tipo(novoDado->getDado());
-			this->dir = novoDado->getDireita();
-			this->esq = novoDado->getEsquerda();
-			this->pai = novoDado->getPai();
+			if (novoDado != nullptr)
+			{
+				this->dado = new Tipo(novoDado->getDado());
+				this->dir = novoDado->getDireita();
+				this->esq = novoDado->getEsquerda();
+				this->pai = novoDado->getPai();
+			}
+			else
+			{
+				this->dado = nullptr;
+				this->dir = nullptr;
+				this->esq = nullptr;
+				this->pai = nullptr;
+			}
 		}
 
 		NoArvore(NoArvore<Tipo> *novoDado, NoArvore<Tipo> *novoEsquerda, NoArvore<Tipo> *novoDireita, NoArvore<Tipo> *novoPai) : dado(novoDado->getDado()), esq(novoEsquerda), dir(novoDireita), pai(novoPai){}

@@ -206,9 +206,23 @@ class Arvore
 		{
 			NoArvore<Tipo> *no;
 			structIncluirSubArvore() {
-				tipo = 3;
+				tipo = TIPO_STRUCT_INCLUIRSUBARVORE;
 			}
-		}structIncluirSubArvore;
+			structIncluirSubArvore* clone()
+			{
+				return new structIncluirSubArvore(no);
+			}
+		protected:
+			structIncluirSubArvore(const NoArvore<Tipo>* novoNo)
+			{
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+				tipo = TIPO_STRUCT_INCLUIRSUBARVORE;
+			}
+		};
 
 		struct structExcluirSubArvore : IEmpilhavel
 		{
@@ -267,16 +281,8 @@ class Arvore
 		protected:
 			structAcharNoErroneo(const NoArvore<Tipo> *novoNo, const NoArvore<Tipo>* achado)
 			{
-				this->no = new NoArvore<Tipo>();
-				this->no->setPai(novoNo->getPai());
-				this->no->setEsquerda(novoNo->getEsquerda());
-				this->no->setDireita(novoNo->getDireita());
-				this->no->setDado(novoNo->getDado());
-				this->achado = new NoArvore<Tipo>();
-				this->achado->setPai(achado->getPai());
-				this->achado->setEsquerda(achado->getEsquerda());
-				this->achado->setDireita(achado->getDireita());
-				this->achado->setDado(achado->getDado());
+				this->no = new NoArvore<Tipo>(novoNo);
+				this->achado = new NoArvore<Tipo>(achado);
 				tipo = TIPO_STRUCT_ACHARNOERRONEO;
 			}
 		};
@@ -485,65 +491,6 @@ class Arvore
 			}
 		}
 
-		// inclúi uma subárvore inteira embaixo do nó
-		void incluirSubArvore(NoArvore<Tipo> *no)
-		{
-			if (no == nullptr)
-			{
-				/// ACABANDO UMA RECURSÃO
-				return;
-			}
-
-			incluir(no->getDado());
-
-			/// RECURSÃO DO NOH PARA DIREITA
-			incluirSubArvore(no->getDireita());
-			/// RECURSÃO DO NOH PARA ESQUERDA
-			incluirSubArvore(no->getEsquerda());
-			/// ACABANDO UMA RECURSÃO
-		}
-
-		// exclúi (deleta) uma subárvore inteira (não precisa estar na árvore)
-		void excluirSubArvore(NoArvore<Tipo> *no)
-		{
-			if (no == nullptr)
-				return;
-			structExcluirSubArvore* aStruct = new structExcluirSubArvore();
-			inicio:
-
-			/// RECURSÃO DO NOH PARA DIREITA
-			//excluirSubArvore(no->getDireita());
-			if (no->getDireita() != nullptr)
-			{
-				aStruct->no = no;
-				aStruct->indicacao = 1;
-				pilha.empilhar(aStruct);
-				no = no->getDireita();
-				goto inicio;
-			}
-			retDaDireita:
-			/// RECURSÃO DO NOH PARA ESQUERDA
-			if (no->getEsquerda() != nullptr)
-			{
-				//excluirSubArvore(no->getEsquerda());
-				aStruct->no = no;
-				aStruct->indicacao = 2;
-				pilha.empilhar(aStruct);
-				no = no->getEsquerda();
-			}
-			retDaEsquerda:
-			no = nullptr;
-			if (dynamic_cast<structExcluirSubArvore*>(pilha.getTopo()))
-			{
-				aStruct = dynamic_cast<structExcluirSubArvore*>(pilha.desempilhar());
-				no = aStruct->no;
-				if (aStruct->indicacao == 1)
-					goto retDaDireita;
-				goto retDaEsquerda;
-			}
-			/// ACABANDO UMA RECURSÃO
-		}
-
 		// exclúi recursivamente o nó com o dado desejado
 		bool excluirRecur(const Tipo &dado, NoArvore<Tipo> *atual)
 		{
@@ -584,17 +531,18 @@ class Arvore
 				}
 				else // tem dois filhos, então nós colocamos qualquer um
 				{
-					if (atual->getDirecaoPai() == PAI_ESQUERDA)
-						atual->getPai()->setDireita(atual->getEsquerda());
+					if (getNivelMaiorDosMenores(atual) < getNivelMenorDosMaiores(atual))
+					{
+						NoArvore<Tipo> aux = *getMenorDosMaiores(atual);
+						this->excluirRecur(aux.getDado(), this->raiz);
+						atual->setDado(aux.getDado());
+					}
 					else
-						atual->getPai()->setEsquerda(atual->getEsquerda());
-					atual->getEsquerda()->setPai(atual->getPai());
-
-					// inclui a subárvore da direita na raiz
-					incluirSubArvore(atual->getDireita());
-					// exclui a subárvore da direita
-					excluirSubArvore(atual->getDireita());
-
+					{
+						NoArvore<Tipo> aux = *getMaiorDosMenores(atual);
+						this->excluirRecur(aux.getDado(), this->raiz);
+						atual->setDado(aux.getDado());
+					}
 					atual = nullptr;
 				}
 				/// ACABANDO UMA RECURSÃO
@@ -627,30 +575,38 @@ class Arvore
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 			{
 				desempilha:
-				if (dynamic_cast<structMaiorNivelRecur*>(pilha.getTopo()) && this->pilha.size() != 1)
+				if (dynamic_cast<structMaiorNivelRecur*>(pilha.getTopo()))
 				{
-					// coloca no maior se o nível da folha for maior que o maior antigo
-					if (aux > *maior)
-						*maior = aux;
+					if (this->pilha.size() != 1)
+					{
+						// coloca no maior se o nível da folha for maior que o maior antigo
+						if (aux > *maior)
+							*maior = aux;
 
-					aStruct = dynamic_cast<structMaiorNivelRecur*>(pilha.desempilhar());
-					if (aStruct->no->getEsquerda() == no)
-					{
-						no = aStruct->no;
-						aux = aStruct->aux;
-						goto direita;
-					}
-					else if (aStruct->no->getDireita() == no)
-					{
-						no = aStruct->no;
-						aux = aStruct->aux;
-						goto esquerda;
+						aStruct = dynamic_cast<structMaiorNivelRecur*>(pilha.desempilhar());
+						if (aStruct->no->getEsquerda() == no)
+						{
+							no = aStruct->no;
+							aux = aStruct->aux;
+							goto direita;
+						}
+						else if (aStruct->no->getDireita() == no)
+						{
+							no = aStruct->no;
+							aux = aStruct->aux;
+							goto esquerda;
+						}
+						else
+						{
+							no = aStruct->no;
+							aux = aStruct->aux;
+							goto direita;
+						}
 					}
 					else
 					{
-						no = aStruct->no;
-						aux = aStruct->aux;
-						goto direita;
+						this->pilha.desempilhar();
+						return;
 					}
 				}
 				else
@@ -668,8 +624,6 @@ class Arvore
 				aux++;
 				goto inicio;
 			}
-			else
-				goto desempilha;
 			
 			direita:
 			if (no->getDireita() != nullptr)
@@ -678,8 +632,6 @@ class Arvore
 				aux++;
 				goto inicio;
 			}
-			else
-				goto desempilha;
 		}
 
 		// retorna a maior altura de um nó
@@ -707,29 +659,35 @@ class Arvore
 			// se for folha, consideramos balanceado o nó
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 			{
-				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()) && this->pilha.size() != 1)
+				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()))
 				{
-					aStruct = dynamic_cast<structVerificaBalanceamento*>(pilha.desempilhar());
-					if (aStruct->no->getEsquerda() == no)
+					if (this->pilha.size() != 1)
 					{
-						no = aStruct->no;
-						goto direita;
-					}
-					else if (aStruct->no->getDireita() == no)
-					{
-						no = aStruct->no;
-						goto esquerda;
+						aStruct = dynamic_cast<structVerificaBalanceamento*>(pilha.desempilhar());
+						if (aStruct->no->getEsquerda() == no)
+						{
+							no = aStruct->no;
+							goto direita;
+						}
+						else if (aStruct->no->getDireita() == no)
+						{
+							no = aStruct->no;
+							goto esquerda;
+						}
+						else
+						{
+							no = aStruct->no;
+							goto direita;
+						}
 					}
 					else
 					{
-						no = aStruct->no;
-						goto direita;
+						this->pilha.desempilhar();
+						return true;
 					}
 				}
 				else
-				{
 					return true;
-				}
 			}
 
 			// retornamos se o nó está balanceado, juntamente com os seus filhos
@@ -794,14 +752,43 @@ class Arvore
 		int verificaValor(NoArvore<Tipo>* no)
 		{
 			if (no == nullptr)
-				return true;
+				return 0;
 
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
-				return true;
+				return 0;
 
 			int countD = maiorNivel(no->getDireita());
 			int countE = maiorNivel(no->getEsquerda());
 			return abs(countD - countE);
+		}
+
+		// obtém o valor de balanceamento do nó
+		int getNivelMaiorDosMenores(NoArvore<Tipo>* no)
+		{
+			if (no == nullptr || no->getEsquerda() != nullptr)
+				return 0;
+
+			no = no->getEsquerda();
+			int nivel;
+			for (nivel = 1; no->getDireita() != nullptr; nivel++)
+			{
+				no = no->getDireita();
+			}
+			return nivel;
+		}
+
+		int getNivelMenorDosMaiores(NoArvore<Tipo>* no)
+		{
+			if (no == nullptr || no->getDireita() != nullptr)
+				return 0;
+
+			no = no->getDireita();
+			int nivel;
+			for (nivel = 1; no->getEsquerda() != nullptr; nivel++)
+			{
+				no = no->getEsquerda();
+			}
+			return nivel;
 		}
 
 		// acha o nó errado na árvore que está mais para baixo (maior altura)
@@ -810,26 +797,86 @@ class Arvore
 			// se não existe, consideramos não há nó errado
 			if (no == nullptr)
 				return nullptr;
+			structAcharNoErroneo* aStruct = new structAcharNoErroneo();
+			NoArvore<Tipo>* achado = nullptr;
+			
+			inicio:
+			if (no == nullptr)
+			{
+				aStruct = dynamic_cast<structAcharNoErroneo*>(pilha.desempilhar());
+				achado = aStruct->achado;
+				no = aStruct->no;
+				if (aStruct->indicacao == 1)
+					goto depoisNulo;
+				else if (aStruct->indicacao == 2)
+					goto depoisDireita;
+				else if (aStruct->indicacao == 3)
+					goto depoisEsquerda;
+				else
+					goto depoisTudo;
+			}
 
-			// procuramos o nó que está errado para a direita
-			NoArvore<Tipo>* achado = acharNoErroneo(no->getDireita());
+		depoisNulo:
+			//achado = acharNoErroneo(no->getDireita());
+			aStruct->no = no;
+			aStruct->achado = achado;
+			aStruct->indicacao = 2;
+			pilha.empilhar(aStruct);
+			no = no->getDireita();
+			goto inicio;
+		depoisDireita:
+			achado = aStruct->achado;
 			if (achado == nullptr)
 			{
 				// se não achamos, procuramos o nó que está errado para a esquerda
-				achado = acharNoErroneo(no->getEsquerda());
+				//achado = acharNoErroneo(no->getEsquerda());
+				aStruct->no = no;
+				aStruct->achado = achado;
+				aStruct->indicacao = 3;
+				pilha.empilhar(aStruct);
+				no = no->getDireita();
+				goto inicio;
+			depoisEsquerda:
 				if (achado != nullptr)
+				{
 					// se achamos, retornamos ele
+					while (dynamic_cast<structAcharNoErroneo*>(pilha.getTopo()))
+						pilha.desempilhar();
 					return achado;
+				}
 			}
 			else
+			{
 				// se achamos, retornamos ele
+				while (dynamic_cast<structAcharNoErroneo*>(pilha.getTopo()))
+					pilha.desempilhar();
 				return achado;
-
+			}
+			depoisTudo:
 			// se o nó atual está desbalanceado, retornamos ele
 			if (!verificaBalanceamentoSingle(no))
+			{
+				while (dynamic_cast<structAcharNoErroneo*>(pilha.getTopo()))
+					pilha.desempilhar();
 				return no;
+			}
 			//retornamos nulo se nada está balanceado
-			return nullptr;
+			if (dynamic_cast<structAcharNoErroneo*>(pilha.getTopo()))
+			{
+				aStruct = dynamic_cast<structAcharNoErroneo*>(pilha.desempilhar());
+				achado = aStruct->achado;
+				no = aStruct->no;
+				if (aStruct->indicacao == 1)
+					goto depoisNulo;
+				else if (aStruct->indicacao == 2)
+					goto depoisDireita;
+				else if (aStruct->indicacao == 3)
+					goto depoisEsquerda;
+				else
+					goto depoisTudo;
+			}
+			else
+				return nullptr;
 		}
 
 		// gira a árvore para a direção necessitada

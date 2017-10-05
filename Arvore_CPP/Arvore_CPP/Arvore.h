@@ -93,7 +93,7 @@ class Arvore
 			{
 				cout << "BOT> Excluido o " << dado << endl;
 				// balancear
-				this->balancear(1, dado);
+				this->balancear(1);
 			}
 			else
 				cout << "BOT> Nao existe o valor " << dado << " na lista" << endl;
@@ -114,7 +114,7 @@ class Arvore
 			// incluímos
 			this->incluir(novoDado, raiz);
 			// balanceamos
-			this->balancear(0, novoDado);
+			this->balancear(0);
 		}
 
 		friend ostream& operator<< (ostream &os, const Arvore<Tipo> &aArvore)
@@ -227,6 +227,17 @@ class Arvore
 			incluirSubArvore(no->getEsquerda());
 		}
 
+		// inclúi uma subárvore inteira embaixo do nó
+		void incluirSubArvore(NoArvore<Tipo> *no, NoArvore<Tipo> *ondeIncluir)
+		{
+			if (no == nullptr)
+				return;
+
+			incluir(no->getDado(), ondeIncluir);
+			incluirSubArvore(no->getDireita(), ondeIncluir);
+			incluirSubArvore(no->getEsquerda(), ondeIncluir);
+		}
+
 		// exclúi (deleta) uma subárvore inteira (não precisa estar na árvore)
 		void excluirSubArvore(NoArvore<Tipo> *no)
 		{
@@ -279,16 +290,34 @@ class Arvore
 				}
 				else // tem dois filhos, então nós colocamos qualquer um
 				{
-					if (atual->getDirecaoPai() == PAI_ESQUERDA)
-						atual->getPai()->setDireita(atual->getEsquerda());
+					if (verificaDireitaMaior(atual))
+					{
+						if (atual->getDirecaoPai() == PAI_ESQUERDA)
+							atual->getPai()->setDireita(atual->getDireita());
+						else
+							atual->getPai()->setEsquerda(atual->getDireita());
+						atual->getDireita()->setPai(atual->getPai());
+
+						// inclui a subárvore da direita na raiz
+						incluirSubArvore(atual->getEsquerda(), atual->getPai());
+						// exclui a subárvore da direita
+						excluirSubArvore(atual->getEsquerda());
+					}
 					else
-						atual->getPai()->setEsquerda(atual->getEsquerda());
-					atual->getEsquerda()->setPai(atual->getPai());
-					
-					// inclui a subárvore da direita na raiz
-					incluirSubArvore(atual->getDireita());
-					// exclui a subárvore da direita
-					excluirSubArvore(atual->getDireita());
+					{
+						if (atual->getDirecaoPai() == PAI_ESQUERDA)
+							atual->getPai()->setDireita(atual->getEsquerda());
+						else
+							atual->getPai()->setEsquerda(atual->getEsquerda());
+						atual->getEsquerda()->setPai(atual->getPai());
+						
+
+						this->balancear(1);
+						// inclui a subárvore da direita no pai
+						incluirSubArvore(atual->getDireita(), this->raiz);
+						// exclui a subárvore da direita
+						excluirSubArvore(atual->getDireita());
+					}
 
 					atual = nullptr;
 				}
@@ -508,7 +537,7 @@ class Arvore
 			}
 		}
 
-		void balancear(int tipo, int dado) // 0 - inclusão, 1- exclusão
+		void balancear(int tipo) // 0 - inclusão, 1- exclusão
 		{
 			// verificar se o balanceamento está correto
 			// se sim, acabou...
