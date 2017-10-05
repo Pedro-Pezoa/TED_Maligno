@@ -123,6 +123,12 @@ int main()
 	arv.excluir(4);
 	cout << arv << endl;
 
+	arv.excluir(4);
+	arv.excluir(3);
+	arv.excluir(2);
+
+	cout << arv << endl;
+
 	char borl = 0;
 	cin >> borl;
 	return 0; // acabamos o programa

@@ -587,10 +587,20 @@ class Arvore
 			inicio:
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 			{
-				desempilha:
+				// coloca no maior se o nível da folha for maior que o maior antigo
+				if (aux > *maior)
+					*maior = aux;
+				
 				if (dynamic_cast<structMaiorNivelRecur*>(pilha.getTopo()))
 				{
-					if (this->pilha.size() != 1)
+					aStruct = dynamic_cast<structMaiorNivelRecur*>(pilha.desempilhar());
+					if (aStruct->no->getEsquerda() == no)
+					{
+						no = aStruct->no;
+						aux = aStruct->aux;
+						goto direita;
+					}
+					else if (aStruct->no->getDireita() == no)
 					{
 						// coloca no maior se o nível da folha for maior que o maior antigo
 						if (aux > *maior)
@@ -672,7 +682,8 @@ class Arvore
 			// se for folha, consideramos balanceado o nó
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 			{
-				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()))
+				desempilhar:
+				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()) && this->pilha.size() != 1)
 				{
 					if (this->pilha.size() != 1)
 					{
@@ -721,6 +732,10 @@ class Arvore
 				{
 					no = no->getDireita();
 					goto inicio;
+				}
+				else
+				{
+					goto desempilhar;
 				}
 			}
 			else
