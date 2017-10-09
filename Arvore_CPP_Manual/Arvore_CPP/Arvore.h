@@ -270,17 +270,17 @@ class Arvore
 
 		struct structAcharNoErroneo : IEmpilhavel
 		{
-			NoArvore<Tipo> *no;
+			NoArvore<Tipo>* no;
 			NoArvore<Tipo>* achado;
 			structAcharNoErroneo() {
 				tipo = TIPO_STRUCT_ACHARNOERRONEO;
 			}
 			structAcharNoErroneo* clone()
 			{
-				return new structAcharNoErroneo(no, achado);
+				return new structAcharNoErroneo(no, achado, indicacao);
 			}
 		protected:
-			structAcharNoErroneo(const NoArvore<Tipo> *novoNo, const NoArvore<Tipo>* achado)
+			structAcharNoErroneo(const NoArvore<Tipo>* novoNo, const NoArvore<Tipo>* achado, const int indi)
 			{
 				this->no = new NoArvore<Tipo>();
 				this->no->setPai(novoNo->getPai());
@@ -297,7 +297,8 @@ class Arvore
 					this->achado->setDireita(achado->getDireita());
 					this->achado->setDado(achado->getDado());
 				}
-				tipo = TIPO_STRUCT_ACHARNOERRONEO;
+				this->tipo = TIPO_STRUCT_ACHARNOERRONEO;
+				indicacao = indi;
 			}
 		};
 
@@ -500,14 +501,15 @@ class Arvore
 		}
 
 		// exclúi recursivamente o nó com o dado desejado
-		bool excluirRecur(const Tipo &dado, NoArvore<Tipo> *atual)
+		NoArvore<Tipo>* excluirRecur(const Tipo &dado, NoArvore<Tipo> *atual, bool *temSubArvore = false)
 		{
 			Tipo auxTipo = dado;
 			NoArvore<Tipo>* auxNo = nullptr;
+			NoArvore<Tipo>* noClone = nullptr;
 			inicio:
 			// nó inexistente
 			if (atual == nullptr)
-				return false;
+				return atual;
 			
 			if (auxTipo == atual->getDado())
 			{
@@ -517,6 +519,8 @@ class Arvore
 						atual->getPai()->setDireita(nullptr);
 					else
 						atual->getPai()->setEsquerda(nullptr);
+
+					noClone = new NoArvore<Tipo>(atual);
 					atual = nullptr;
 				}
 				else if (atual->getEsquerda() == nullptr) // precisamos fazer quase que uma rotação
@@ -526,6 +530,8 @@ class Arvore
 					else
 						atual->getPai()->setEsquerda(atual->getDireita());
 					atual->getDireita()->setPai(atual->getPai());
+
+					noClone = new NoArvore<Tipo>(atual);
 					atual = nullptr;
 				}
 				else if(atual->getDireita() == nullptr) // precisamos fazer quase que uma rotação
@@ -534,8 +540,10 @@ class Arvore
 						atual->getPai()->setDireita(atual->getEsquerda());
 					else
 						atual->getPai()->setEsquerda(atual->getEsquerda());
-						atual->getEsquerda()->setPai(atual->getPai());
-						atual = nullptr;
+					atual->getEsquerda()->setPai(atual->getPai());
+
+					noClone = new NoArvore<Tipo>(atual);
+					atual = nullptr;
 				}
 				else // tem dois filhos, então nós colocamos qualquer um
 				{
@@ -559,11 +567,11 @@ class Arvore
 						goto inicio;
 						//this->excluirRecur(aux.getDado(), this->raiz);
 					}
-					atual = nullptr;
+					*temSubArvore = true;
 				}
 				if (auxNo != nullptr)
 					auxNo->setDado(auxTipo);
-				return true;
+				return noClone;
 			}
 			else if (auxTipo < atual->getDado())
 				atual = atual->getEsquerda();
@@ -805,7 +813,7 @@ class Arvore
 			structAcharNoErroneo* aStruct = new structAcharNoErroneo();
 			NoArvore<Tipo>* achado = nullptr;
 
-		inicio:
+			inicio:
 			if (no == nullptr)
 			{
 				aStruct = dynamic_cast<structAcharNoErroneo*>(pilha.desempilhar());
