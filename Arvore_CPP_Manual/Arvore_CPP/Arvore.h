@@ -60,12 +60,29 @@ class Arvore
 				cout << "BOT> A lista ja esta vazia..." << endl;
 				return false;
 			}
-			bool ret = false;
+			bool* nada = new bool(false);
+			NoArvore<Tipo>* ret = nullptr;
 			if (this->raiz->getDado() == dado)
 			{
 				// ponteiro auxiliar para podermos
 				NoArvore<Tipo>* atual;
-				ret = true;
+				if (this->raiz->isFolha())
+					this->raiz = nullptr;
+				else if (getNivelMaiorDosMenores(this->raiz) > getNivelMenorDosMaiores(this->raiz))
+				{
+					atual = getMaiorDosMenores(this->raiz);
+					Tipo novoDadoRaiz = atual->getDado();
+					ret = this->excluirRecur(novoDadoRaiz, raiz, nada);
+					this->raiz->setDado(novoDadoRaiz);
+				}
+				else
+				{
+					atual = getMenorDosMaiores(this->raiz);
+					Tipo novoDadoRaiz = atual->getDado();
+					ret = this->excluirRecur(novoDadoRaiz, raiz, nada);
+					this->raiz->setDado(novoDadoRaiz);
+				}
+				/*
 				// menor dos maiores para quando só a direita é nulo ou quando nenhum é nulo
 				if ((raiz->getDireita() == nullptr && raiz->getEsquerda() != nullptr) || 
 					(raiz->getDireita() != nullptr && raiz->getEsquerda() != nullptr))
@@ -74,7 +91,7 @@ class Arvore
 					while (atual->getDireita() != nullptr)
 						atual = atual->getDireita();
 					Tipo novoDadoRaiz = atual->getDado();
-					this->excluirRecur(novoDadoRaiz, raiz);
+					ret = this->excluirRecur(novoDadoRaiz, raiz, nada);
 					this->raiz->setDado(novoDadoRaiz);
 				}
 				// maior dos menores se somente a esquerda é nula
@@ -84,28 +101,38 @@ class Arvore
 					while (atual->getEsquerda() != nullptr)
 						atual = atual->getEsquerda();
 					Tipo novoDadoRaiz = atual->getDado();
-					this->excluirRecur(novoDadoRaiz, raiz);
+					ret = this->excluirRecur(novoDadoRaiz, raiz, nada);
 					this->raiz->setDado(novoDadoRaiz);
 				}
 				// quando a raiz é folha
 				else
 					this->raiz = nullptr;
+					*/
+
+				if (raiz != nullptr)
+					cout << "BOT> Nova raiz: " << this->raiz->getDado() << endl;
 			}
 			else
 			{
 				// não é raiz
-				ret = this->excluirRecur(dado, this->raiz);
+				ret = this->excluirRecur(dado, this->raiz, nada);
 			}
 			// falamos que excluiu
-			if (ret != false)
+			if (ret != nullptr)
 			{
 				cout << "BOT> Excluido o " << dado << endl;
 				// balancear
 				this->balancear(1, dado);
+				if (*nada)
+				{
+					incluirSubArvore(ret->getDireita());
+					incluirSubArvore(ret->getEsquerda());
+				}
+				return true;
 			}
 			else
 				cout << "BOT> Nao existe o valor " << dado << " na lista" << endl;
-			return ret;
+			return false;
 		}
 
 		void incluir(const Tipo &novoDado)
@@ -123,6 +150,16 @@ class Arvore
 			this->incluirRecur(novoDado, raiz);
 			// balanceamos
 			this->balancear(0, novoDado);
+		}
+
+		void incluirSubArvore(const NoArvore<Tipo> *novoDado)
+		{
+			if (novoDado == nullptr)
+				return;
+
+			incluir(novoDado->getDado());
+			incluirSubArvore(novoDado->getDireita());
+			incluirSubArvore(novoDado->getEsquerda());
 		}
 
 		friend ostream& operator<< (ostream &os, Arvore<Tipo> &aArvore)
@@ -501,15 +538,16 @@ class Arvore
 		}
 
 		// exclúi recursivamente o nó com o dado desejado
-		NoArvore<Tipo>* excluirRecur(const Tipo &dado, NoArvore<Tipo> *atual, bool *temSubArvore = false)
+		NoArvore<Tipo>* excluirRecur(const Tipo &dado, NoArvore<Tipo> *atual, bool *temSubArvore)
 		{
 			Tipo auxTipo = dado;
 			NoArvore<Tipo>* auxNo = nullptr;
 			NoArvore<Tipo>* noClone = nullptr;
+			*temSubArvore = false;
 			inicio:
 			// nó inexistente
 			if (atual == nullptr)
-				return atual;
+				return nullptr;
 			
 			if (auxTipo == atual->getDado())
 			{
@@ -547,27 +585,23 @@ class Arvore
 				}
 				else // tem dois filhos, então nós colocamos qualquer um
 				{
+					*temSubArvore = true;
 					if (getNivelMaiorDosMenores(atual) < getNivelMenorDosMaiores(atual))
 					{
-						NoArvore<Tipo> aux = *getMenorDosMaiores(atual);
+						NoArvore<Tipo>* aux = getMenorDosMaiores(atual);
 
-						auxNo = atual;
-						atual = this->raiz;
-						auxTipo = aux.getDado();
-						goto inicio;
-						//this->excluirRecur(aux.getDado(), this->raiz);
+						this->excluir(aux->getDado());
+
+						atual->setDado(aux->getDado());
 					}
 					else
 					{
-						NoArvore<Tipo> aux = *getMaiorDosMenores(atual);
+						NoArvore<Tipo>* aux = getMaiorDosMenores(atual);
 
-						auxNo = atual;
-						atual = this->raiz;
-						auxTipo = aux.getDado();
-						goto inicio;
-						//this->excluirRecur(aux.getDado(), this->raiz);
+						this->excluir(aux->getDado());
+
+						atual->setDado(aux->getDado());
 					}
-					*temSubArvore = true;
 				}
 				if (auxNo != nullptr)
 					auxNo->setDado(auxTipo);
@@ -778,7 +812,7 @@ class Arvore
 		// obtém o valor de balanceamento do nó
 		int getNivelMaiorDosMenores(NoArvore<Tipo>* no)
 		{
-			if (no == nullptr || no->getEsquerda() != nullptr)
+			if (no == nullptr || no->getEsquerda() == nullptr)
 				return 0;
 
 			no = no->getEsquerda();
@@ -792,7 +826,7 @@ class Arvore
 
 		int getNivelMenorDosMaiores(NoArvore<Tipo>* no)
 		{
-			if (no == nullptr || no->getDireita() != nullptr)
+			if (no == nullptr || no->getDireita() == nullptr)
 				return 0;
 
 			no = no->getDireita();
@@ -853,7 +887,7 @@ class Arvore
 					aStruct->achado = achado;
 					aStruct->indicacao = 3;
 					pilha.empilhar(aStruct);
-					no = no->getDireita();
+					no = no->getEsquerda();
 					goto inicio;
 				}
 			depoisEsquerda:
@@ -980,7 +1014,7 @@ class Arvore
 					if (noFFD->getPai() == nullptr)
 						this->raiz = noFFD;
 					else
-						noFFD->getPai()->setDireita(noFFD);
+						noFFD->getPai()->setEsquerda(noFFD);
 				}
 			}
 		}
