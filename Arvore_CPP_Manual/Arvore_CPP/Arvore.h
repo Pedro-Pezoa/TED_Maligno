@@ -65,23 +65,18 @@ class Arvore
 			if (this->raiz->getDado() == dado)
 			{
 				// ponteiro auxiliar para podermos
-				NoArvore<Tipo>* atual;
+				NoArvore<Tipo>* aux = nullptr;
 				if (this->raiz->isFolha())
 					this->raiz = nullptr;
+
 				else if (getNivelMaiorDosMenores(this->raiz) > getNivelMenorDosMaiores(this->raiz))
-				{
-					atual = getMaiorDosMenores(this->raiz);
-					Tipo novoDadoRaiz = atual->getDado();
-					ret = this->excluirRecur(novoDadoRaiz, raiz, nada);
-					this->raiz->setDado(novoDadoRaiz);
-				}
+					aux = new NoArvore<Tipo>(getMaiorDosMenores(this->raiz));
+
 				else
-				{
-					atual = getMenorDosMaiores(this->raiz);
-					Tipo novoDadoRaiz = atual->getDado();
-					ret = this->excluirRecur(novoDadoRaiz, raiz, nada);
-					this->raiz->setDado(novoDadoRaiz);
-				}
+					aux = new NoArvore<Tipo>(getMenorDosMaiores(this->raiz));
+
+				ret = this->excluirRecur(aux->getDado(), raiz, nada);
+				this->raiz->setDado(aux->getDado());
 				/*
 				// menor dos maiores para quando só a direita é nulo ou quando nenhum é nulo
 				if ((raiz->getDireita() == nullptr && raiz->getEsquerda() != nullptr) || 
@@ -111,6 +106,12 @@ class Arvore
 
 				if (raiz != nullptr)
 					cout << "BOT> Nova raiz: " << this->raiz->getDado() << endl;
+
+				if (this->raiz->getEsquerda() == nullptr || this->raiz->getDireita() == nullptr)
+					this->balancear(1);
+				else
+					this->balancear(2);
+				return true;
 			}
 			else
 			{
@@ -122,7 +123,7 @@ class Arvore
 			{
 				cout << "BOT> Excluido o " << dado << endl;
 				// balancear
-				this->balancear(1, dado);
+				this->balancear(1);
 				if (*nada)
 				{
 					incluirSubArvore(ret->getDireita());
@@ -149,7 +150,7 @@ class Arvore
 			// incluímos
 			this->incluirRecur(novoDado, raiz);
 			// balanceamos
-			this->balancear(0, novoDado);
+			this->balancear(0);
 		}
 
 		void incluirSubArvore(const NoArvore<Tipo> *novoDado)
@@ -704,7 +705,7 @@ class Arvore
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 			{
 				desempilhar:
-				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()) && this->pilha.size() != 1)
+				if (dynamic_cast<structVerificaBalanceamento*>(pilha.getTopo()))
 				{
 					aStruct = dynamic_cast<structVerificaBalanceamento*>(pilha.desempilhar());
 					if (aStruct->no->getEsquerda() == no)
@@ -972,7 +973,7 @@ class Arvore
 				else
 					noFE->getPai()->setEsquerda(noFE);
 			}
-			else
+			else if (direcao == GIRO_PARA_ESQUERDA)
 			{
 				NoArvore<Tipo>* noFE = no->getDireita();
 				NoArvore<Tipo>* noFFD = noFE->getEsquerda();
@@ -1005,11 +1006,14 @@ class Arvore
 					noFFD->setPai(no->getPai());
 					no->setPai(noFFD);
 					no->setDireita(noFFD->getEsquerda());
+
 					if (no->getDireita() != nullptr)
 						no->getDireita()->setPai(no);
+
 					noFE->setPai(noFFD);
 					noFFD->setEsquerda(no);
 					noFFD->setDireita(noFE);
+
 					// setamos a raiz se necessário
 					if (noFFD->getPai() == nullptr)
 						this->raiz = noFFD;
@@ -1019,7 +1023,7 @@ class Arvore
 			}
 		}
 
-		void balancear(int tipo, int dado) // 0 - inclusão, 1- exclusão
+		void balancear(int tipo) // 0 - inclusão, 1- exclusão
 		{
 			// verificar se o balanceamento está correto
 			// se sim, acabou...
@@ -1050,7 +1054,7 @@ class Arvore
 					} while (pai != nullptr);
 				}
 				// se é inclusão
-				else
+				else if (tipo == 0)
 				{
 					do
 					{
@@ -1065,7 +1069,13 @@ class Arvore
 					// enquanto não está balanceado
 					} while (!(verificaBalanceamento(this->raiz)));
 				}
-				cout << "BOT> Tentativa de balanceamento realizada" << endl;
+				else
+				{
+					bool* tem = new bool(false);
+					NoArvore<Tipo>* oi = new NoArvore<Tipo>(acharNoErroneo(this->raiz));
+					this->excluirRecur(oi->getDado(), this->raiz, tem);
+					this->incluirRecur(oi->getDado(), this->raiz);
+				}
 			}
 			else
 			{

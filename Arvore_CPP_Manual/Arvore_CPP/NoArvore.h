@@ -80,8 +80,7 @@ class NoArvore
 
 		int getDirecaoPai() const
 		{
-			return ((*this->dado > this->getPai()->getDado())?
-				(0):(1));
+			return ((*this->dado > this->getPai()->getDado())?(0):(1));
 		}
 
 		void setPai(NoArvore *NovoPai)
