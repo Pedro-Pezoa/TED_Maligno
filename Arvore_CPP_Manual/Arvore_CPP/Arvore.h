@@ -153,16 +153,6 @@ class Arvore
 			this->balancear(0);
 		}
 
-		void incluirSubArvore(const NoArvore<Tipo> *novoDado)
-		{
-			if (novoDado == nullptr)
-				return;
-
-			incluir(novoDado->getDado());
-			incluirSubArvore(novoDado->getDireita());
-			incluirSubArvore(novoDado->getEsquerda());
-		}
-
 		friend ostream& operator<< (ostream &os, Arvore<Tipo> &aArvore)
 		{
 			// escrevemos o valor da árvore
@@ -489,6 +479,16 @@ class Arvore
 				aux = aux->getDireita();
 
 			return aux;
+		}
+
+		void incluirSubArvore(const NoArvore<Tipo> *novoDado)
+		{
+			if (novoDado == nullptr)
+				return;
+
+			incluir(novoDado->getDado());
+			incluirSubArvore(novoDado->getDireita());
+			incluirSubArvore(novoDado->getEsquerda());
 		}
 
 		void incluirRecur(const Tipo &novoDado, NoArvore<Tipo> *no)
@@ -846,6 +846,7 @@ class Arvore
 			if (no == nullptr)
 				return nullptr;
 			structAcharNoErroneo* aStruct = new structAcharNoErroneo();
+			aStruct->achado = nullptr;
 			NoArvore<Tipo>* achado = nullptr;
 
 			inicio:
@@ -1056,18 +1057,19 @@ class Arvore
 				// se é inclusão
 				else if (tipo == 0)
 				{
-					do
+					// achamos o nó errado
+					NoArvore<Tipo>* oi = acharNoErroneo(this->raiz);
+					while (oi != nullptr)
 					{
-						// achamos o nó errado
-						NoArvore<Tipo>* oi = acharNoErroneo(this->raiz);
 
 						// giramos para o lado certo
 						if (verificaDireitaMaior(oi))
 							girar(oi, GIRO_PARA_ESQUERDA);
 						else
 							girar(oi, GIRO_PARA_DIREITA);
-					// enquanto não está balanceado
-					} while (!(verificaBalanceamento(this->raiz)));
+						// enquanto não está balanceado
+						oi = acharNoErroneo(this->raiz);
+					}
 				}
 				else
 				{
