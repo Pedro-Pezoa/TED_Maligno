@@ -67,7 +67,10 @@ class Arvore
 				// ponteiro auxiliar para podermos
 				NoArvore<Tipo>* aux = nullptr;
 				if (this->raiz->isFolha())
+				{
 					this->raiz = nullptr;
+					return true;
+				}
 
 				else if (getNivelMaiorDosMenores(this->raiz) > getNivelMenorDosMaiores(this->raiz))
 					aux = new NoArvore<Tipo>(getMaiorDosMenores(this->raiz));
