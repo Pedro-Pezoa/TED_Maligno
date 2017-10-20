@@ -958,24 +958,32 @@ class Arvore
 					noFFD = noFE->getEsquerda();
 					metodo = 2;
 				}
-
 				// alteramos de posição o nó e o filho dele
-				noFE->setDireita(no);
-				noFE->setPai(no->getPai());
-				no->setPai(noFE);
-				if (metodo == 2)
-					no->setEsquerda(nullptr);
-				else
+				if (metodo == 1)
 				{
+					noFE->setDireita(no);
+					noFE->setPai(no->getPai());
+					if (noFE->getPai() != nullptr)
+						noFE->getPai()->setDireita(noFE);
+					no->setPai(noFE);
+
 					no->setEsquerda(noFFD);
 					noFFD->setPai(no);
+				}
+				else
+				{
+					noFE->setDireita(no);
+					noFE->setPai(no->getPai());
+					if (noFE->getPai() != nullptr)
+						noFE->getPai()->setEsquerda(noFE);
+					no->setPai(noFE);
+
+					no->setEsquerda(nullptr);
 				}
 
 				// setamos a raiz se necessário
 				if (noFE->getPai() == nullptr)
 					this->raiz = noFE;
-				else
-					noFE->getPai()->setEsquerda(noFE);
 			}
 			else if (direcao == GIRO_PARA_ESQUERDA)
 			{
@@ -995,6 +1003,13 @@ class Arvore
 					// alteramos de posição o nó e o filho dele
 					noFE->setEsquerda(no);
 					noFE->setPai(no->getPai());
+					if (noFE->getPai() != nullptr)
+					{
+						if (no->getDirecaoPai() == PAI_DIREITA)
+							noFFD->getPai()->setEsquerda(noFFD);
+						else
+							noFFD->getPai()->setDireita(noFFD);
+					}
 					no->setPai(noFE);
 					no->setDireita(nullptr);
 					// setamos a raiz se necessário
@@ -1008,6 +1023,13 @@ class Arvore
 					// alteramos de posição o nó e o filho dele
 					noFE->setEsquerda(nullptr);
 					noFFD->setPai(no->getPai());
+					if (noFFD->getPai() != nullptr)
+					{
+						if (no->getDirecaoPai() == PAI_DIREITA)
+							noFFD->getPai()->setEsquerda(noFFD);
+						if (no->getDirecaoPai() == PAI_ESQUERDA)
+							noFFD->getPai()->setDireita(noFFD);
+					}
 					no->setPai(noFFD);
 					no->setDireita(noFFD->getEsquerda());
 
@@ -1022,7 +1044,7 @@ class Arvore
 					if (noFFD->getPai() == nullptr)
 						this->raiz = noFFD;
 					else
-						noFFD->getPai()->setEsquerda(noFFD);
+						noFFD->getPai()->setDireita(noFFD);
 				}
 			}
 		}
