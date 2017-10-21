@@ -20,8 +20,7 @@ public:
 			  size(0), ehPadrao(ehPadrao), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento),
 			  tamanhoMaximoDasListas(_novoTamanhoMaximoLista), quantidadeMaximaDeListas(_novaQuantidadeMaximaLista), taxaMaximaDeOcupacao(_novoLength * (_novaTaxaDeOcupacao / 100))
 	{
-		hash
-		this->hashTable = (ListaDupla<NoLista<TipoDado>>*)malloc(this->length * sizeof(ListaDupla<NoLista<TipoDado>>));
+		this->hashTable = (ListaDupla<NoLista<TipoDado*>*>*)malloc(this->length * sizeof(ListaDupla<NoLista<TipoDado*>*>));
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -34,22 +33,48 @@ public:
 	//---------------------------------------------------------------MÉTODOS PRINCIPAIS-----------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	bool inserir(const TipoKey& key, const TipoKey& dado)
+	// retorna se incluiu com sucesso ou não
+	bool inserir(const TipoKey& key, const TipoDado& dado)
 	{
-		
+		return false;
 	}
 
-	int calcularHash(const TipoKey& key)
+	// retorna o dado removido
+	TipoDado deletar(const TipoKey& key)
 	{
-		return key.hashCode();
+		return nullptr;
+	}
+
+	// devolve o dado da chave do parâmetro, caso não exista retorna nullptr
+	TipoDado obter(const TipoKey& key)
+	{
+		return nullptr;
+	}
+
+	// retorna se o dado existe ou não
+	bool existe(const TipoKey& key)
+	{
+		return false;
 	}
 
 	friend ostream& operator<<(ostream &sai, const HashTable<TipoKey, TipoDado>& outro)
 	{
-		return (sai << outro.toString() << endl);
+		return (sai << outro.toString());
 	}
+
 	friend class HashTable<TipoKey, TipoDado>;
 protected:
+
+	int calcularHash(const TipoKey& key)
+	{
+		return hashCode(key);
+	}
+
+	int calcularPosicao(const TipoKey& key)
+	{
+		return hashCode(key) % length;
+	}
+
 	string toString() const
 	{
 		return "oi";
@@ -57,18 +82,21 @@ protected:
 
 	int fatorial(const int& numero)
 	{
-		if (numero < 1)
-			return 1;
-		if (numero == 1 || numero == 1)
-			return numero;
-		return numero * this->fatorial(numero-1);
+		int fact = 1;
+		for (int counter = 1; counter <= numero; counter++)
+		{
+			fact = fact * counter;
+		}
+		return fact;
 	}
+
+private:
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//-------------------------------------------------------------------ATRIBUTOS---------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	
-	ListaDupla<NoLista<TipoDado>>* hashTable;
+
+	ListaDupla<TipoDado*>* hashTable;
 	int size;
 	int length;
 	int taxaDeCrescimento;
@@ -77,6 +105,4 @@ protected:
 
 	float taxaMaximaDeOcupacao;
 	bool ehPadrao;
-
-private:
 };
