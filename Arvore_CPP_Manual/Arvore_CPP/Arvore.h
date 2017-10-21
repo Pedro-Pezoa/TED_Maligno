@@ -26,7 +26,7 @@ class Arvore
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 		// construtor nulo
-		Arvore() : raiz(nullptr){}
+		Arvore() : raiz(nullptr), bufferBalancear(nullptr){}
 
 		// construtor de cópia
 		Arvore(const Arvore<Tipo> &original) : setRaiz(original.getRaiz()) {}
@@ -513,6 +513,8 @@ class Arvore
 				{
 					no->setDireita(new NoArvore<Tipo>(novoDado));
 					no->getDireita()->setPai(no);
+
+					bufferBalancear = new NoArvore<Tipo>(no->getDireita());
 				}
 			}
 			else if (novoDado < no->getDado())
@@ -530,6 +532,7 @@ class Arvore
 				{
 					no->setEsquerda(new NoArvore<Tipo>(novoDado));
 					no->getEsquerda()->setPai(no);
+					bufferBalancear = new NoArvore<Tipo>(no->getEsquerda());
 				}
 			}
 			// FIM DE UMA RECURSÃO
@@ -609,7 +612,7 @@ class Arvore
 				}
 				if (auxNo != nullptr)
 					auxNo->setDado(auxTipo);
-				bufferBalancear = noClone;
+				///bufferBalancear = noClone; <- não está funfando direito aqui
 				return noClone;
 			}
 			else if (auxTipo < atual->getDado())
@@ -680,6 +683,29 @@ class Arvore
 				no = no->getDireita();
 				aux++;
 				goto inicio;
+			}
+
+			if (dynamic_cast<structMaiorNivelRecur*>(pilha.getTopo()))
+			{
+				aStruct = dynamic_cast<structMaiorNivelRecur*>(pilha.desempilhar());
+				if (aStruct->no->getEsquerda() == no)
+				{
+					no = aStruct->no;
+					aux = aStruct->aux;
+					goto direita;
+				}
+				else if (aStruct->no->getDireita() == no)
+				{
+					no = aStruct->no;
+					aux = aStruct->aux;
+					goto esquerda;
+				}
+				else
+				{
+					no = aStruct->no;
+					aux = aStruct->aux;
+					goto direita;
+				}
 			}
 		}
 
@@ -784,7 +810,7 @@ class Arvore
 		}
 
 		// retorna se a direita do nó é maior que a esquerda
-		bool verificaDireitaMaior(NoArvore<Tipo>* no)
+		bool verificaDireitaMaiorIgual(NoArvore<Tipo>* no)
 		{
 			// se não existe, consideramos que direita é maior(tanto faz)
 			if (no == nullptr)
@@ -793,6 +819,22 @@ class Arvore
 			// se for folha, consideramos que direita é maior(tanto faz)
 			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
 				return true;
+
+			// retornamos se o nó tem a direita maior
+			int countD = maiorNivel(no->getDireita());
+			int countE = maiorNivel(no->getEsquerda());
+			return countD > countE;
+		}
+
+		bool verificaDireitaMaior(NoArvore<Tipo>* no)
+		{
+			// se não existe, consideramos que direita é maior(tanto faz)
+			if (no == nullptr)
+				return true;
+
+			// se for folha, consideramos que direita é maior(tanto faz)
+			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
+				return false;
 
 			// retornamos se o nó tem a direita maior
 			int countD = maiorNivel(no->getDireita());
@@ -812,6 +854,19 @@ class Arvore
 			int countD = maiorNivel(no->getDireita());
 			int countE = maiorNivel(no->getEsquerda());
 			return abs(countD - countE);
+		}
+
+		int verdadeiroVerificaValor(NoArvore<Tipo>* no)
+		{
+			if (no == nullptr)
+				return 0;
+
+			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
+				return 0;
+
+			int countD = maiorNivel(no->getDireita());
+			int countE = maiorNivel(no->getEsquerda());
+			return countD - countE;
 		}
 
 		// obtém o valor de balanceamento do nó
@@ -914,7 +969,7 @@ class Arvore
 			}
 		depoisTudo:
 			// se o nó atual está desbalanceado, retornamos ele
-			if (!verificaBalanceamentoSingle(no))
+			if (!verificaBalanceamentoSingle(no)) ////////////////////////////////////////////////////////////////
 			{
 				while (dynamic_cast<structAcharNoErroneo*>(pilha.getTopo()))
 					pilha.desempilhar();
@@ -958,6 +1013,14 @@ class Arvore
 				{
 					noFFD = noFE->getEsquerda();
 					metodo = 2;
+				}
+				else if (bufferBalancear != nullptr)
+				{
+					if (verdadeiroVerificaValor(bufferBalancear) < 0)
+					{
+						noFFD = noFE->getEsquerda();
+						metodo = 2;
+					}
 				}
 				// alteramos de posição o nó e o filho dele
 				if (metodo == 1)
@@ -1075,7 +1138,7 @@ class Arvore
 						pai = pai->getPai();
 
 						// giramos para o lado certo
-						if (verificaDireitaMaior(oi))
+						if (verificaDireitaMaiorIgual(oi))
 							girar(oi, GIRO_PARA_ESQUERDA);
 						else
 							girar(oi, GIRO_PARA_DIREITA);
@@ -1094,7 +1157,7 @@ class Arvore
 					{
 
 						// giramos para o lado certo
-						if (verificaDireitaMaior(oi))
+						if (verificaDireitaMaiorIgual(oi))
 							girar(oi, GIRO_PARA_ESQUERDA);
 						else
 							girar(oi, GIRO_PARA_DIREITA);

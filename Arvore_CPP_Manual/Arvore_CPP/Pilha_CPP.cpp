@@ -32,6 +32,7 @@ int main()
 	string lido = "";
 	Arvore<int> arv = Arvore<int>();
 	char espaco = ' ';
+	string default_command = "insert 9 8 7 6 5";
 
 	// escrevendo o painel padrão
 	cout << "BOT> Ola, digite 'insert X' ou 'inserir X' para inserir o NUMERO INTEIRO X" << endl;
@@ -42,8 +43,16 @@ int main()
 	while (1)
 	{
 		// deixamos o usuário escolher o que deseja
-		cout << endl << "USER> ";
-		getline(cin, lido);
+		if (default_command == "")
+		{
+			cout << endl << "USER> ";
+			getline(cin, lido);
+		}
+		else
+		{
+			lido = default_command;
+			default_command = "";
+		}
 
 		// guardamos o que o usuário digitou em um vector, separado por espaços
 		vector<string> comando = vector<string>();
