@@ -609,6 +609,7 @@ class Arvore
 				}
 				if (auxNo != nullptr)
 					auxNo->setDado(auxTipo);
+				bufferBalancear = noClone;
 				return noClone;
 			}
 			else if (auxTipo < atual->getDado())
@@ -975,7 +976,12 @@ class Arvore
 					noFE->setDireita(no);
 					noFE->setPai(no->getPai());
 					if (noFE->getPai() != nullptr)
-						noFE->getPai()->setEsquerda(noFE);
+					{
+						if (no->getDirecaoPai() == PAI_DIREITA)
+							noFE->getPai()->setEsquerda(noFE);
+						else
+							noFE->getPai()->setDireita(noFE);
+					}
 					no->setPai(noFE);
 
 					no->setEsquerda(nullptr);
@@ -1044,7 +1050,7 @@ class Arvore
 					if (noFFD->getPai() == nullptr)
 						this->raiz = noFFD;
 					else
-						noFFD->getPai()->setDireita(noFFD);
+						noFFD->getPai()->setEsquerda(noFFD);
 				}
 			}
 		}
@@ -1108,6 +1114,7 @@ class Arvore
 			{
 				cout << "BOT> Nao desbalanceou a arvore" << endl;
 			}
+			bufferBalancear = nullptr;
 		}
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//-------------------------------------------------------------------ATRIBUTOS---------------------------------------------------------------------------//
@@ -1116,6 +1123,7 @@ class Arvore
 		// raiz da árvore inteira
 		NoArvore<Tipo> *raiz;
 		Pilha<IEmpilhavel*> pilha;
+		NoArvore<Tipo>* bufferBalancear;
 	private:
 		static bool comparaParaEsvaziar(int a, int b)
 		{
