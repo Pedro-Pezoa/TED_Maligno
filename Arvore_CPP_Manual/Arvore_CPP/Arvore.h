@@ -1014,13 +1014,10 @@ class Arvore
 					noFFD = noFE->getEsquerda();
 					metodo = 2;
 				}
-				else if (bufferBalancear != nullptr)
+				else if (verdadeiroVerificaValor(noFE) < 0)
 				{
-					if (verdadeiroVerificaValor(bufferBalancear) < 0)
-					{
-						noFFD = noFE->getEsquerda();
-						metodo = 2;
-					}
+					noFFD = noFE->getEsquerda();
+					metodo = 2;
 				}
 				// alteramos de posição o nó e o filho dele
 				if (metodo == 1)
@@ -1036,7 +1033,6 @@ class Arvore
 				}
 				else
 				{
-					noFE->setDireita(no);
 					noFE->setPai(no->getPai());
 					if (noFE->getPai() != nullptr)
 					{
@@ -1047,7 +1043,10 @@ class Arvore
 					}
 					no->setPai(noFE);
 
-					no->setEsquerda(nullptr);
+					no->setEsquerda(noFE->getDireita());
+					if (no->getEsquerda() != nullptr)
+						no->getEsquerda()->setPai(no);
+					noFE->setDireita(no);
 				}
 
 				// setamos a raiz se necessário
