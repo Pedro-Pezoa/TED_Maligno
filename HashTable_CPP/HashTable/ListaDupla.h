@@ -222,8 +222,6 @@ public:
 		}
 		else
 		{
-			//if (this->atual->getDado() == this->fim->getDado())
-			//	this->atual = this->fim->getAnterior();
 			this->fim = this->fim->getAnterior();
 			fim->setProximo(nullptr);
 			if (tamanho == 2)
