@@ -26,7 +26,7 @@ class Arvore
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 		// construtor nulo
-		Arvore() : raiz(nullptr), bufferBalancear(nullptr){}
+		Arvore() : raiz(nullptr){}
 
 		// construtor de cópia
 		Arvore(const Arvore<Tipo> &original) : setRaiz(original.getRaiz()) {}
@@ -513,8 +513,6 @@ class Arvore
 				{
 					no->setDireita(new NoArvore<Tipo>(novoDado));
 					no->getDireita()->setPai(no);
-
-					bufferBalancear = new NoArvore<Tipo>(no->getDireita());
 				}
 			}
 			else if (novoDado < no->getDado())
@@ -532,7 +530,6 @@ class Arvore
 				{
 					no->setEsquerda(new NoArvore<Tipo>(novoDado));
 					no->getEsquerda()->setPai(no);
-					bufferBalancear = new NoArvore<Tipo>(no->getEsquerda());
 				}
 			}
 			// FIM DE UMA RECURSÃO
@@ -612,7 +609,6 @@ class Arvore
 				}
 				if (auxNo != nullptr)
 					auxNo->setDado(auxTipo);
-				///bufferBalancear = noClone; <- não está funfando direito aqui
 				return noClone;
 			}
 			else if (auxTipo < atual->getDado())
@@ -969,7 +965,7 @@ class Arvore
 			}
 		depoisTudo:
 			// se o nó atual está desbalanceado, retornamos ele
-			if (!verificaBalanceamentoSingle(no)) ////////////////////////////////////////////////////////////////
+			if (!verificaBalanceamentoSingle(no))
 			{
 				while (dynamic_cast<structAcharNoErroneo*>(pilha.getTopo()))
 					pilha.desempilhar();
@@ -1078,9 +1074,9 @@ class Arvore
 					if (noFE->getPai() != nullptr)
 					{
 						if (no->getDirecaoPai() == PAI_DIREITA)
-							noFFD->getPai()->setEsquerda(noFFD);
+							noFE->getPai()->setEsquerda(noFE);
 						else
-							noFFD->getPai()->setDireita(noFFD);
+							noFE->getPai()->setDireita(noFE);
 					}
 					no->setPai(noFE);
 					no->setDireita(noFE->getEsquerda());
@@ -1090,8 +1086,6 @@ class Arvore
 					// setamos a raiz se necessário
 					if (noFE->getPai() == nullptr)
 						this->raiz = noFE;
-					else
-						noFE->getPai()->setDireita(noFE);
 				}
 				else
 				{
@@ -1118,8 +1112,6 @@ class Arvore
 					// setamos a raiz se necessário
 					if (noFFD->getPai() == nullptr)
 						this->raiz = noFFD;
-					else
-						noFFD->getPai()->setEsquerda(noFFD);
 				}
 			}
 		}
@@ -1183,7 +1175,6 @@ class Arvore
 			{
 				cout << "BOT> Nao desbalanceou a arvore" << endl;
 			}
-			bufferBalancear = nullptr;
 		}
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//-------------------------------------------------------------------ATRIBUTOS---------------------------------------------------------------------------//
@@ -1192,10 +1183,5 @@ class Arvore
 		// raiz da árvore inteira
 		NoArvore<Tipo> *raiz;
 		Pilha<IEmpilhavel*> pilha;
-		NoArvore<Tipo>* bufferBalancear;
 	private:
-		static bool comparaParaEsvaziar(int a, int b)
-		{
-			return (a == b);
-		}
 };
