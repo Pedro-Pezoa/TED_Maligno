@@ -15,12 +15,16 @@ public:
 	//-------------------------------------------------------------CONSTRUTORES/DESTRUTOR--------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	HashTable(const int& _novoLength = 720, const int& _novaTaxaDeCrescimento = 6, const int& _novaTaxaDeOcupacao = 50, const int& _novoTamanhoMaximoLista = 3, const int& _novaQuantidadeMaximaLista = 3,
+	HashTable(const int& _novoLength = 120, const int& _novaTaxaDeCrescimento = 5, const int& _novaTaxaDeOcupacao = 50, const int& _novoTamanhoMaximoLista = 3, const int& _novaQuantidadeMaximaLista = 3,
 			  const bool& ehPadrao = true) : 
 			  size(0), ehPadrao(ehPadrao), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento),
 			  tamanhoMaximoDasListas(_novoTamanhoMaximoLista), quantidadeMaximaDeListas(_novaQuantidadeMaximaLista), taxaMaximaDeOcupacao(_novoLength * (_novaTaxaDeOcupacao / 100))
 	{
 		this->hashTable = (ListaDupla<TipoDado>*)malloc(this->length * sizeof(ListaDupla<TipoDado>));
+		for (int i = 0; i < length; i++)
+		{
+			this->hashTable[i] = ListaDupla<TipoDado>();
+		}
 	}
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -36,14 +40,8 @@ public:
 	// retorna se incluiu com sucesso ou não
 	bool inserir(const TipoKey& key, const TipoDado& dado)
 	{
-		if (dado == nullptr || key == nullptr)
-			return false;
-
 		int pos = this->calcularPosicao(key);
-		if (*(this->hashTable + pos) != nullptr)
-			(this->hashTable + pos)->inserirNoFim(dado);
-		else
-			*(this->hashTable + pos) = new ListaDupla<TipoDado>(dado);
+		(this->hashTable + pos)->inserirNoFim(dado);
 		return true;
 	}
 
@@ -54,7 +52,7 @@ public:
 			return false;
 
 		int pos = this->calcularPosicao(key);
-		if (*(this->hashTable + pos) == nullptr)
+		if ((this->hashTable + pos) == nullptr)
 			return false;
 
 		else if ((this->hashTable + pos)->getTamanho() == 1 || podeApagarLista)
@@ -91,23 +89,24 @@ public:
 		return (sai << outro.toString());
 	}
 
-	friend class HashTable<TipoKey, TipoDado>;
-protected:
-
-	int calcularPosicao(const TipoKey& key)
-	{
-		return hashCode(key) % length;
-	}
-
 	string toString() const
 	{
 		string texto = "[ ";
 		for (int i = 0; i < this->length; i++)
 		{
-			if (*(this->hashTable + i) != nullptr)
-				txt += i + "-" + (this->hashTable + i)->toString() + "; ";
+			if ((this->hashTable + i) != nullptr)
+				texto += i + "-" + (this->hashTable + i)->toString() + "; ";
 		}
-		return txt + " ]";
+		return texto + " ]";
+	}
+
+	friend class HashTable<TipoKey, TipoDado>;
+protected:
+
+	int calcularPosicao(const TipoKey& key)
+	{
+		hash<TipoDado> hashCode;
+		return hashCode(key) % this->length;
 	}
 
 	int fatorial(const int& numero)

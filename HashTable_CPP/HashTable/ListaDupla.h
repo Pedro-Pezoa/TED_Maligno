@@ -248,7 +248,7 @@ public:
 
 		for(int i = 0; i < this->tamanho; i++)
 		{
-			txt += to_string(*this->operator[](i)) + ", ";
+			txt = txt + to_string(this->operator[](i)) + ", ";
 		}
 
 		return txt.substr(0, txt.length()-2) + " ]";
