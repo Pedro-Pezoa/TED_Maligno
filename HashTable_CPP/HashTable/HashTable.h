@@ -46,42 +46,31 @@ public:
 	}
 
 	// retorna o dado removido
-	bool deletar(const TipoKey& key, bool podeApagarLista = false)
+	bool deletar(const TipoKey& key)
 	{
-		if (key == nullptr)
-			return false;
-
 		int pos = this->calcularPosicao(key);
-		if ((this->hashTable + pos) == nullptr)
+		if ((this->hashTable + pos)->isEmpty())
 			return false;
+		else if (!(this->hashTable + pos)->isEmpty())
+			(this->hashTable + pos)->removerNoFim();
 
-		else if ((this->hashTable + pos)->getTamanho() == 1 || podeApagarLista)
-		{
-			(this->hashTable + pos)->removerNoFim();
-			delete(this->hashTable + pos);
-		}
-		else
-			(this->hashTable + pos)->removerNoFim();
 		return true;
 	}
 
 	// devolve o dado da chave do parâmetro, caso não exista retorna nullptr
 	TipoDado obter(const TipoKey& key) const
 	{
-		if (key == nullptr)
-			return nullptr;
-
 		int pos = this->calcularPosicao(key);
-		if (*(this->hashTable + pos) == nullptr)
-			return nullptr;
+		if ((this->hashTable + pos)->isEmpty())
+			return NULL;
 
-		return (this->hashTable + this->calcularPosicao(key))->getFim();
+		return *(this->hashTable + pos)->getFim()->getDado();
 	}
 
 	// retorna se o dado existe ou não
 	bool existe(const TipoKey& key) const
 	{
-		return this->obter(key) != nullptr;
+		return this->obter(key) != NULL;
 	}
 
 	friend ostream& operator<<(ostream &sai, const HashTable<TipoKey, TipoDado>& outro)
@@ -94,16 +83,16 @@ public:
 		string texto = "[ ";
 		for (int i = 0; i < this->length; i++)
 		{
-			if ((this->hashTable + i) != nullptr)
-				texto += i + "-" + (this->hashTable + i)->toString() + "; ";
+			if (!(this->hashTable + i)->isEmpty())
+				texto += to_string(i) + "-" + (this->hashTable + i)->toString() + "; ";
 		}
-		return texto + " ]";
+		return texto + "]";
 	}
 
 	friend class HashTable<TipoKey, TipoDado>;
 protected:
 
-	int calcularPosicao(const TipoKey& key)
+	int calcularPosicao(const TipoKey& key) const
 	{
 		hash<TipoDado> hashCode;
 		return hashCode(key) % this->length;

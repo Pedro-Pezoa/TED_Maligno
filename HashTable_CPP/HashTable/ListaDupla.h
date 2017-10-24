@@ -219,6 +219,7 @@ public:
 			this->fim = nullptr;
 			this->inicio = nullptr;
 			this->atual = nullptr;
+			this->tamanho = 0;
 		}
 		else
 		{
@@ -309,20 +310,41 @@ public:
 		return *atualReserva->getDado();
 	}
 
-	bool operator=(const ListaDupla&)
+	ListaDupla<Tipo> clone()
 	{
+		return ListaDupla<Tipo>(*this);
+	}
+
+	bool operator=(ListaDupla<Tipo>& outraLista)
+	{
+		ListaDupla<Tipo> aux = outraLista.clone();
+		while (!this->isEmpty())
+			this->removerNoFim();
+
+		for (int i = 0; i < aux.getTamanho(); i++)
+			this->inserirNoFim(aux.operator[](i));
+
+		if (aux.getAtual() == nullptr)
+			this->setAtual(NULL);
+		else
+			this->setAtual(*aux.getAtual()->getDado());
+
+		this->indoParaFrente = aux.indoParaFrente;
+		this->tamanho = aux.getTamanho();
+		this->indexAtual = aux.getIndexAtual();
+
 		return true;
+	}
+
+	bool isEmpty()
+	{
+		return (this->tamanho <= 0);
 	}
 
 protected:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//----------------------------------------------------------------MÉTODOS AUXILIARES---------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-	bool isEmpty()
-	{
-		return (this->tamanho == 0);
-	}
 
 	NoLista<Tipo>* acharNoPos(const int &indice) const
 	{

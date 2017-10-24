@@ -11,10 +11,22 @@ int main(int argc, _TCHAR* argv[])
 {
 	HashTable<char, int> hash = HashTable<char, int>();
 	hash.inserir('a', 5);
-	//hash.inserir('b', 15);
-	//hash.inserir('c', 25);
+	hash.inserir('f', 15);
+	hash.inserir('z', 25);
+	hash.inserir('f', 55);
 
-	cout << hash;
+	cout << hash << endl;
+
+	hash.deletar('z');
+
+	cout << hash << endl;
+
+	cout << hash.obter('a') << endl;
+
+	if (hash.existe('a'))
+		cout << "existe" << endl;
+	else
+		cout << "nao existe" << endl;
 
 	int birl = 0;
 	cin >> birl;
