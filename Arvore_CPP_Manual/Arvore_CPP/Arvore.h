@@ -519,6 +519,7 @@ class Arvore
 		NoArvore<Tipo>* excluirRecur(const Tipo &dado, NoArvore<Tipo> *atual, bool *temSubArvore)
 		{
 			Tipo auxTipo = dado;
+			NoArvore<Tipo> *pai = atual->getPai();
 			NoArvore<Tipo>* auxNo = nullptr;
 			NoArvore<Tipo>* noClone = nullptr;
 			*temSubArvore = false;
@@ -531,13 +532,20 @@ class Arvore
 			{
 				if (atual->isFolha()) // se é folha, só excluir normal
 				{
-					if (atual->getDirecaoPai() == PAI_ESQUERDA)
-						atual->getPai()->setDireita(nullptr);
+					int direc = atual->getDirecaoPai();
+					if (atual->getDado() == 0)
+					{
+						noClone = new NoArvore<Tipo>(atual);
+						delete(atual);
+					}
+					
+					if (direc == PAI_ESQUERDA)
+						pai->setDireita(nullptr);
 					else
-						atual->getPai()->setEsquerda(nullptr);
+						pai->setEsquerda(nullptr);
 
-					noClone = new NoArvore<Tipo>(atual);
-					atual = nullptr;
+					if (noClone == nullptr)
+						noClone = new NoArvore<Tipo>(atual);
 				}
 				else if (atual->getEsquerda() == nullptr) // precisamos fazer quase que uma rotação
 				{
@@ -566,29 +574,37 @@ class Arvore
 					*temSubArvore = true;
 					if (getNivelMaiorDosMenores(atual) < getNivelMenorDosMaiores(atual))
 					{
-						NoArvore<Tipo>* aux = getMenorDosMaiores(atual);
+						NoArvore<Tipo>* auquis = getMenorDosMaiores(atual);
 
-						this->excluir(aux->getDado());
+						this->excluir(auquis->getDado());
 
-						atual->setDado(aux->getDado());
+						atual->setDado(auquis->getDado());
 					}
 					else
 					{
-						NoArvore<Tipo>* aux = getMaiorDosMenores(atual);
+						NoArvore<Tipo>* auquis = getMaiorDosMenores(atual);
 
-						this->excluir(aux->getDado());
+						int valor = auquis->getDado();
+						this->excluir(auquis->getDado());
 
-						atual->setDado(aux->getDado());
+						atual->setDado(valor);
 					}
 				}
 				if (auxNo != nullptr)
 					auxNo->setDado(auxTipo);
 				return noClone;
 			}
+
 			else if (auxTipo < atual->getDado())
+			{
+				pai = atual;
 				atual = atual->getEsquerda();
+			}
 			else
+			{
+				pai = atual;
 				atual = atual->getDireita();
+			}
 			
 			goto inicio;
 		}
