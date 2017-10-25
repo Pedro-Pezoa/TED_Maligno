@@ -16,7 +16,6 @@ int main(int argc, _TCHAR* argv[])
 	hash.inserir('f', 55);
 
 	cout << hash << endl;
-
 	hash.deletar('z');
 
 	cout << hash << endl;

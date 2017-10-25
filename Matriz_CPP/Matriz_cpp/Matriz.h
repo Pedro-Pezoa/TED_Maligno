@@ -96,7 +96,7 @@ protected:
 		if (this->existe(x, y))
 		{
 			int pos = this->indexDeRow(x);
-			this->row->removerPos(pos);
+			//this->row->removerPos(pos);
 			return this->col->operator[](pos)->removerPos(y);
 		}
 	}

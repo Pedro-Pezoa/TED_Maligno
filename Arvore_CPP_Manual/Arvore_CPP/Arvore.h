@@ -57,7 +57,7 @@ class Arvore
 			// se for a raiz que se deseja excluir
 			if (this->raiz == nullptr)
 			{
-				cout << "BOT> A lista ja esta vazia..." << endl;
+				cout << "BOT> A arvore ja esta vazia..." << endl;
 				return false;
 			}
 			bool* nada = new bool(false);
@@ -80,32 +80,6 @@ class Arvore
 
 				ret = this->excluirRecur(aux->getDado(), raiz, nada);
 				this->raiz->setDado(aux->getDado());
-				/*
-				// menor dos maiores para quando só a direita é nulo ou quando nenhum é nulo
-				if ((raiz->getDireita() == nullptr && raiz->getEsquerda() != nullptr) || 
-					(raiz->getDireita() != nullptr && raiz->getEsquerda() != nullptr))
-				{
-					atual = raiz->getEsquerda();
-					while (atual->getDireita() != nullptr)
-						atual = atual->getDireita();
-					Tipo novoDadoRaiz = atual->getDado();
-					ret = this->excluirRecur(novoDadoRaiz, raiz, nada);
-					this->raiz->setDado(novoDadoRaiz);
-				}
-				// maior dos menores se somente a esquerda é nula
-				else if (raiz->getDireita() != nullptr && raiz->getEsquerda() == nullptr)
-				{
-					atual = raiz->getDireita();
-					while (atual->getEsquerda() != nullptr)
-						atual = atual->getEsquerda();
-					Tipo novoDadoRaiz = atual->getDado();
-					ret = this->excluirRecur(novoDadoRaiz, raiz, nada);
-					this->raiz->setDado(novoDadoRaiz);
-				}
-				// quando a raiz é folha
-				else
-					this->raiz = nullptr;
-					*/
 
 				if (raiz != nullptr)
 					cout << "BOT> Nova raiz: " << this->raiz->getDado() << endl;
@@ -135,7 +109,7 @@ class Arvore
 				return true;
 			}
 			else
-				cout << "BOT> Nao existe o valor " << dado << " na lista" << endl;
+				cout << "BOT> Nao existe o valor " << dado << " na arvore" << endl;
 			return false;
 		}
 
@@ -1018,14 +992,30 @@ class Arvore
 				// alteramos de posição o nó e o filho dele
 				if (metodo == 1)
 				{
-					noFE->setDireita(no);
-					noFE->setPai(no->getPai());
-					if (noFE->getPai() != nullptr)
-						noFE->getPai()->setDireita(noFE);
-					no->setPai(noFE);
+					noFFD->setPai(no->getPai());
+					if (noFFD->getPai() != nullptr)
+					{
+						if (no->getDirecaoPai() == PAI_DIREITA)
+							noFFD->getPai()->setEsquerda(noFFD);
+						else
+							noFFD->getPai()->setDireita(noFFD);
+					}
 
-					no->setEsquerda(noFFD);
-					noFFD->setPai(no);
+					no->setEsquerda(noFFD->getEsquerda());
+					if (no->getEsquerda() != nullptr)
+						no->getEsquerda()->setPai(no);
+
+					noFE->setPai(noFFD);
+					no->setPai(noFFD);
+					noFE->setDireita(noFFD->getDireita());
+					if (noFE->getDireita() != nullptr)
+						noFE->getDireita()->setPai(noFE);
+					noFFD->setDireita(no);
+					noFFD->setEsquerda(noFE);
+
+					// setamos a raiz se necessário
+					if (noFFD->getPai() == nullptr)
+						this->raiz = noFFD;
 				}
 				else
 				{
@@ -1043,11 +1033,11 @@ class Arvore
 					if (no->getEsquerda() != nullptr)
 						no->getEsquerda()->setPai(no);
 					noFE->setDireita(no);
-				}
 
-				// setamos a raiz se necessário
-				if (noFE->getPai() == nullptr)
-					this->raiz = noFE;
+					// setamos a raiz se necessário
+					if (noFE->getPai() == nullptr)
+						this->raiz = noFE;
+				}
 			}
 			else if (direcao == GIRO_PARA_ESQUERDA)
 			{
@@ -1106,6 +1096,9 @@ class Arvore
 						no->getDireita()->setPai(no);
 
 					noFE->setPai(noFFD);
+					noFE->setEsquerda(noFFD->getDireita());
+					if (noFE->getEsquerda() != nullptr)
+						noFE->getEsquerda()->setPai(noFE);
 					noFFD->setEsquerda(no);
 					noFFD->setDireita(noFE);
 

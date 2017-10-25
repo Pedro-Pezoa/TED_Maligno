@@ -80,13 +80,13 @@ public:
 
 	string toString() const
 	{
-		string texto = "[ ";
+		string texto = "{ ";
 		for (int i = 0; i < this->length; i++)
 		{
-			if (!(this->hashTable + i)->isEmpty())
-				texto += to_string(i) + "-" + (this->hashTable + i)->toString() + "; ";
+			texto += this->hashTable[i].toString() + "; ";
 		}
-		return texto + "]";
+		texto += "}";
+		return texto;
 	}
 
 	friend class HashTable<TipoKey, TipoDado>;
