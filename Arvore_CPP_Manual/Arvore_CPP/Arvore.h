@@ -1129,6 +1129,7 @@ class Arvore
 		{
 			// verificar se o balanceamento está correto
 			// se sim, acabou...
+			cout << "RAIS CARAI " << raiz->getDado() << endl;
 			if (!verificaBalanceamento(this->raiz))
 			{
 				// se não, temos que ajustar

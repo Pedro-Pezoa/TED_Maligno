@@ -88,7 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HashTable.cpp" />
-    <ClCompile Include="HashTable_CPP.cpp" />
+    <ClCompile Include="Main.cpp" />
     <ClCompile Include="ListaDupla.cpp" />
     <ClCompile Include="NoLista.cpp" />
     <ClCompile Include="stdafx.cpp">

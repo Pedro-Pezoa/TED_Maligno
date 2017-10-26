@@ -38,9 +38,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HashTable_CPP.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HashTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,6 +45,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ListaDupla.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

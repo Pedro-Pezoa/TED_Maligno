@@ -15,23 +15,15 @@ public:
 	//-------------------------------------------------------------CONSTRUTORES/DESTRUTOR--------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	HashTable(const int& _novoLength = 120, const int& _novaTaxaDeCrescimento = 5, const int& _novaTaxaDeOcupacao = 50, const int& _novoTamanhoMaximoLista = 3, const int& _novaQuantidadeMaximaLista = 3,
+	HashTable(const int& _novoLength = 120, const int& _novaTaxaDeCrescimento = 5, const int& _novaTaxaDeOcupacao = 50, const int& _novoTamanhoMaximoLista = 3, const int& _novaQuantidadeMaximaLista = 10,
 			  const bool& ehPadrao = true) : 
 			  size(0), ehPadrao(ehPadrao), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento),
 			  tamanhoMaximoDasListas(_novoTamanhoMaximoLista), quantidadeMaximaDeListas(_novaQuantidadeMaximaLista), taxaMaximaDeOcupacao(_novoLength * (_novaTaxaDeOcupacao / 100))
 	{
-		this->hashTable = (ListaDupla<TipoDado>*)malloc(this->length * sizeof(ListaDupla<TipoDado>));
+		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 		for (int i = 0; i < length; i++)
-		{
-			this->hashTable[i] = ListaDupla<TipoDado>();
-		}
+			this->hashTable[i] = ListaDupla<NoHashTable>();
 	}
-
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-	//---------------------------------------------------------------GETTERS E SETTERS-----------------------------------------------------------------------//
-	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//---------------------------------------------------------------MÉTODOS PRINCIPAIS-----------------------------------------------------------------------//
@@ -40,8 +32,10 @@ public:
 	// retorna se incluiu com sucesso ou não
 	bool inserir(const TipoKey& key, const TipoDado& dado)
 	{
+		NoHashTable novoNo = NoHashTable(key, dado);
 		int pos = this->calcularPosicao(key);
-		(this->hashTable + pos)->inserirNoFim(dado);
+		(this->hashTable + pos)->inserirNoFim(novoNo);
+		this->balancear();
 		return true;
 	}
 
@@ -49,11 +43,18 @@ public:
 	bool deletar(const TipoKey& key)
 	{
 		int pos = this->calcularPosicao(key);
-		if ((this->hashTable + pos)->isEmpty())
+		if (!this->isEmpty(pos))
+		{
+			for (int i = 0; i < length; i++)
+			{
+				if (*(this->hashTable + pos)[i].chave == key)
+					(this->hashTable + pos)->removerDado(*(this->hashTable + pos)[i])
+			}
+		}
+		else
 			return false;
-		else if (!(this->hashTable + pos)->isEmpty())
-			(this->hashTable + pos)->removerNoFim();
-
+		 
+		this->balancear();
 		return true;
 	}
 
@@ -61,10 +62,12 @@ public:
 	TipoDado obter(const TipoKey& key) const
 	{
 		int pos = this->calcularPosicao(key);
-		if ((this->hashTable + pos)->isEmpty())
-			return NULL;
-
-		return *(this->hashTable + pos)->getFim()->getDado();
+		for (int i = 0; i < length; i++)
+		{
+			if (*(this->hashTable + pos)[i].chave == key)
+				return *(this->hashTable + pos)[i];
+		}
+		return NULL;
 	}
 
 	// retorna se o dado existe ou não
@@ -83,14 +86,63 @@ public:
 		string texto = "{ ";
 		for (int i = 0; i < this->length; i++)
 		{
-			texto += this->hashTable[i].toString() + "; ";
+			if (this->isEmpty(i))
+				texto += this->hashTable[i].toString() + "; ";
 		}
-		texto += "}";
-		return texto;
+		return texto + "}";
 	}
 
 	friend class HashTable<TipoKey, TipoDado>;
 protected:
+
+	typedef struct NoHashTable
+	{
+		TipoKey* chave;
+		TipoDado* dado;
+	};
+
+	bool balancear() const
+	{
+		bool verificaTamanhoLista = false;
+		int verificaQuantidadeLista = 0;
+		int verificaTaxaDeOcupacao = 0;
+
+		for (int i = 0; i < this->length; i++)
+		{
+			if (!this->isEmpty(i))
+			{
+				verificaTaxaDeOcupacao++;
+				if (this->hashTable[i].getTamanho() > 1)
+				{
+					verificaQuantidadeLista++;
+					if (this->hashTable[i].getTamanho() > this->tamanhoMaximoDasListas)
+						verificaTamanhoLista = true;
+				}
+			}
+		}
+
+		if (verificaTamanhoLista || verificaQuantidadeLista >= this->quantidadeMaximaDeListas || verificaTaxaDeOcupacao >= this->taxaMaximaDeOcupacao)
+			return this->aumentarHashTable();
+		return false;
+	}
+
+	bool aumentarHashTable()
+	{
+		if (this->ehPadrao)
+		{
+			int novoLength = this->fatorial(++this->taxaDeCrescimento);
+			HashTable<TipoKey, TipoDado> aux = HashTable<TipoKey, TipoDado>(novoLength, this->taxaDeCrescimento);
+
+			for (int i = 0; i < this->length; i++)
+			{
+				if (!this->isEmpty(i))
+				{
+					for (int j = 0; j < this->hashTable[i].getTamanho(); j++)
+						aux.inserir(this->hashTable[i][j].getDado().chave, this->hashTable[i][j].getDado().dado);
+				}
+			}
+		}
+	}
 
 	int calcularPosicao(const TipoKey& key) const
 	{
@@ -106,13 +158,18 @@ protected:
 		return fact;
 	}
 
+	bool isEmpty(const int pos)
+	{
+		return (this->hashTable + pos)->isEmpty();
+	}
+
 private:
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//-------------------------------------------------------------------ATRIBUTOS---------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	ListaDupla<TipoDado>* hashTable;
+	ListaDupla<NoHashTable>* hashTable;
 	int size;
 	int length;
 	int taxaDeCrescimento;
