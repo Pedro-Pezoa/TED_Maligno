@@ -95,6 +95,19 @@ int main()
 						cout << "BOT> " << comando[i] << " nao eh um numero inteiro" << endl;
 				}
 			}
+			else if (comando[0] == "view" || comando[0] == "ver")
+			{
+				// para cada item após o "delete", nós deletamos esse item
+				for (int i = 1; i < comando.size(); i++)
+				{
+					// mas se não for um número, não excluímos
+					if (ehNumero(comando[i]))
+						cout << arv.viewNo(atoi(comando[i].c_str())) << endl;
+					// mostramos para o usuário que ele errou na digitação
+					else
+						cout << "BOT> " << comando[i] << " nao eh um numero inteiro" << endl;
+				}
+			}
 		}
 		// printamos o resultado da árvore, como ela está no momento
 		cout << arv << endl;

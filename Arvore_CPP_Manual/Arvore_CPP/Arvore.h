@@ -141,6 +141,34 @@ class Arvore
 			// retornamos o conteúdo da árvore desde a raiz
 			return this->toString(this->raiz);
 		}
+
+		string viewNo(const Tipo& param)
+		{
+			if (this->raiz == nullptr)
+				return "";
+
+			NoArvore<Tipo>* no = getNoTal(this->raiz, param);
+			if (no == nullptr)
+				return "Sem informacao desse trem ai...";
+			return "Info: "+to_string(no->getDado())+
+				((no->getDireita() != nullptr)?(", Direita: " + to_string(no->getDireita()->getDado())):(", Direita: nulo"))+
+				((no->getEsquerda() != nullptr) ? (", Esquerda: " + to_string(no->getEsquerda()->getDado())) : (", Esquerda: nulo"))+
+				((no->getPai() != nullptr) ? (", Pai: " + to_string(no->getPai()->getDado())) : (", Pai: nulo"));
+		}
+
+		NoArvore<Tipo>* getNoTal(NoArvore<Tipo>* auxiliar, const int& i)
+		{
+			if (auxiliar == nullptr)
+				return nullptr;
+
+			if (auxiliar->getDado() > i)
+				return getNoTal(auxiliar->getEsquerda(), i);
+			else if (auxiliar->getDado() < i)
+				return getNoTal(auxiliar->getDireita(), i);
+			else
+				return auxiliar;
+		}
+
 		friend class Pilha<Tipo>;
 	protected:
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -1096,14 +1124,14 @@ class Arvore
 				else
 				{
 					// alteramos de posição o nó e o filho dele
-					noFE->setEsquerda(nullptr);
+					//noFE->setEsquerda(nullptr);
 					noFFD->setPai(no->getPai());
 					if (noFFD->getPai() != nullptr)
 					{
 						if (no->getDirecaoPai() == PAI_DIREITA)
-							noFFD->getPai()->setEsquerda(noFFD);
+							no->getPai()->setEsquerda(noFFD);
 						if (no->getDirecaoPai() == PAI_ESQUERDA)
-							noFFD->getPai()->setDireita(noFFD);
+							no->getPai()->setDireita(noFFD);
 					}
 					no->setPai(noFFD);
 					no->setDireita(noFFD->getEsquerda());
