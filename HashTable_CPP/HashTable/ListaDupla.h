@@ -312,7 +312,7 @@ public:
 	{
 		return ListaDupla<Tipo>(*this);
 	}
-
+	/*
 	bool operator=(ListaDupla<Tipo>& outraLista)
 	{
 		ListaDupla<Tipo> aux = outraLista.clone();
@@ -333,7 +333,7 @@ public:
 
 		return true;
 	}
-
+	*/
 	bool isEmpty()
 	{
 		return (this->tamanho <= 0);

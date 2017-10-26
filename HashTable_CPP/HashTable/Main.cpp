@@ -9,7 +9,8 @@
 
 int main(int argc, _TCHAR* argv[])
 {
-	HashTable<char, int> hash = HashTable<char, int>();
+	HashTable<char, int> hash = HashTable<char, int>(false, 5, 5);
+	//HashTable<char, int> hash = HashTable<char, int>(true);
 	hash.inserir('a', 5);
 	hash.inserir('f', 15);
 	hash.inserir('z', 25);
@@ -18,7 +19,7 @@ int main(int argc, _TCHAR* argv[])
 	hash.inserir('k', 85);
 
 	cout << hash << endl;
-	
+	/*
 	hash.deletar('z');
 
 	cout << hash << endl;
@@ -29,7 +30,7 @@ int main(int argc, _TCHAR* argv[])
 		cout << "existe" << endl;
 	else
 		cout << "nao existe" << endl;
-	
+	*/
 	int birl = 0;
 	cin >> birl;
 	return 0;

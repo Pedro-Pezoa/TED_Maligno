@@ -547,7 +547,7 @@ class Arvore
 		NoArvore<Tipo>* excluirRecur(const Tipo &dado, NoArvore<Tipo> *atual, bool *temSubArvore)
 		{
 			Tipo auxTipo = dado;
-			NoArvore<Tipo> *pai = atual->getPai();
+			NoArvore<Tipo>* pai = atual->getPai();
 			NoArvore<Tipo>* auxNo = nullptr;
 			NoArvore<Tipo>* noClone = nullptr;
 			*temSubArvore = false;
@@ -573,7 +573,10 @@ class Arvore
 						pai->setEsquerda(nullptr);
 
 					if (noClone == nullptr)
+					{
 						noClone = new NoArvore<Tipo>(atual);
+						delete(atual);
+					}
 				}
 				else if (atual->getEsquerda() == nullptr) // precisamos fazer quase que uma rotação
 				{
@@ -604,18 +607,21 @@ class Arvore
 					{
 						NoArvore<Tipo>* auquis = getMenorDosMaiores(atual);
 
+						int valorExcluir = auquis->getDado();
+						int valorAlterar = atual->getDado();
 						this->excluir(auquis->getDado());
 
-						atual->setDado(auquis->getDado());
+						this->getNoDoDado(valorAlterar)->setDado(valorExcluir);
 					}
 					else
 					{
 						NoArvore<Tipo>* auquis = getMaiorDosMenores(atual);
 
-						int valor = auquis->getDado();
+						int valorExcluir = auquis->getDado();
+						int valorAlterar = atual->getDado();
 						this->excluir(auquis->getDado());
 
-						atual->setDado(valor);
+						this->getNoDoDado(valorAlterar)->setDado(valorExcluir);
 					}
 				}
 				if (auxNo != nullptr)
