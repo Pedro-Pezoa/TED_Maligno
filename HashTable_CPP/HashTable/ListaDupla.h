@@ -248,9 +248,7 @@ public:
 		string txt = "[ ";
 
 		for(int i = 0; i < this->tamanho; i++)
-		{
-			txt = txt + to_string(this->operator[](i)) + ", ";
-		}
+			txt += (this->operator[](i)).toString() + ", ";
 
 		return txt.substr(0, txt.length()-2) + " ]";
 	}

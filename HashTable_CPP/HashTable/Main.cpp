@@ -13,20 +13,23 @@ int main(int argc, _TCHAR* argv[])
 	hash.inserir('a', 5);
 	hash.inserir('f', 15);
 	hash.inserir('z', 25);
-	hash.inserir('f', 55);
+	hash.inserir('g', 45);
+	hash.inserir('i', 95);
+	hash.inserir('k', 85);
 
 	cout << hash << endl;
+	
 	hash.deletar('z');
 
 	cout << hash << endl;
-
+	
 	cout << hash.obter('a') << endl;
-
-	if (hash.existe('a'))
+	
+	if (hash.existe('z'))
 		cout << "existe" << endl;
 	else
 		cout << "nao existe" << endl;
-
+	
 	int birl = 0;
 	cin >> birl;
 	return 0;

@@ -8,17 +8,46 @@ using namespace std;
 #include <xhash>
 
 template <class TipoKey, class TipoDado>
+
 class HashTable
 {
 public:
+	class NoHashTable 
+	{
+		friend class HashTable<TipoKey, TipoDado>;
+		friend class NoHashTable;
+	public:
+		NoHashTable(const TipoKey& novaChave = NULL, const TipoDado& novoDado = NULL)
+		{
+			chave = novaChave;
+			dado = novoDado;
+		}
+
+		TipoKey getChave() const
+		{
+			return this->chave;
+		}
+
+		TipoDado getDado() const
+		{
+			return this->dado;
+		}
+
+		string toString() const
+		{
+			return "Key:" + to_string(this->chave) + " Data: " + to_string(this->dado);
+		}
+	private:
+		TipoKey chave;
+		TipoDado dado;
+	};
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//-------------------------------------------------------------CONSTRUTORES/DESTRUTOR--------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	HashTable(const int& _novoLength = 120, const int& _novaTaxaDeCrescimento = 5, const int& _novaTaxaDeOcupacao = 50, const int& _novoTamanhoMaximoLista = 3, const int& _novaQuantidadeMaximaLista = 10,
-			  const bool& ehPadrao = true) : 
+	HashTable(const float& _novoLength = 6, const int& _novaTaxaDeCrescimento = 3, const float& _novaTaxaDeOcupacao = 50, const int& _novoTamanhoMaximoLista = 3, const bool& ehPadrao = true) : 
 			  size(0), ehPadrao(ehPadrao), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento),
-			  tamanhoMaximoDasListas(_novoTamanhoMaximoLista), quantidadeMaximaDeListas(_novaQuantidadeMaximaLista), taxaMaximaDeOcupacao(_novoLength * (_novaTaxaDeOcupacao / 100))
+			  tamanhoMaximoDasListas(_novoTamanhoMaximoLista), quantidadeMaximaDeListas(_novoLength * (_novaTaxaDeOcupacao / 100.0)), taxaMaximaDeOcupacao(_novoLength * (_novaTaxaDeOcupacao / 100.0))
 	{
 		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 		for (int i = 0; i < length; i++)
@@ -35,6 +64,8 @@ public:
 		NoHashTable novoNo = NoHashTable(key, dado);
 		int pos = this->calcularPosicao(key);
 		(this->hashTable + pos)->inserirNoFim(novoNo);
+
+		this->size++;
 		this->balancear();
 		return true;
 	}
@@ -45,16 +76,21 @@ public:
 		int pos = this->calcularPosicao(key);
 		if (!this->isEmpty(pos))
 		{
-			for (int i = 0; i < length; i++)
+			if ((this->hashTable + pos)->getTamanho() == 1)
+				(this->hashTable + pos)->removerNoFim();
+			else
 			{
-				if (*(this->hashTable + pos)[i].chave == key)
-					(this->hashTable + pos)->removerDado(*(this->hashTable + pos)[i])
+				for (int i = 0; i < (this->hashTable + pos)->getTamanho(); i++)
+				{
+					if ((this->hashTable + pos)->operator[](i).chave == key)
+						(this->hashTable + pos)->removerPos(i);
+				}
 			}
 		}
 		else
 			return false;
 		 
-		this->balancear();
+		this->size--;
 		return true;
 	}
 
@@ -64,8 +100,8 @@ public:
 		int pos = this->calcularPosicao(key);
 		for (int i = 0; i < length; i++)
 		{
-			if (*(this->hashTable + pos)[i].chave == key)
-				return *(this->hashTable + pos)[i];
+			if ((this->hashTable + pos)->operator[](i).chave == key)
+				return (this->hashTable + pos)->operator[](i).dado;
 		}
 		return NULL;
 	}
@@ -83,11 +119,11 @@ public:
 
 	string toString() const
 	{
-		string texto = "{ ";
+		string texto = "{\n";
 		for (int i = 0; i < this->length; i++)
 		{
-			if (this->isEmpty(i))
-				texto += this->hashTable[i].toString() + "; ";
+			if (!this->isEmpty(i))
+				texto += to_string(i) + this->hashTable[i].toString() + ";\n";
 		}
 		return texto + "}";
 	}
@@ -95,34 +131,34 @@ public:
 	friend class HashTable<TipoKey, TipoDado>;
 protected:
 
-	typedef struct NoHashTable
+	ListaDupla<NoHashTable>* getHashTable()
 	{
-		TipoKey* chave;
-		TipoDado* dado;
-	};
+		return this->hashTable;
+	}
 
-	bool balancear() const
+	bool balancear()
 	{
-		bool verificaTamanhoLista = false;
-		int verificaQuantidadeLista = 0;
-		int verificaTaxaDeOcupacao = 0;
+		bool qtasListasComTamanhoEmExcesso = false;
+		int qtasListas = 0;
+		int qtosNos = 0;
 
 		for (int i = 0; i < this->length; i++)
 		{
 			if (!this->isEmpty(i))
 			{
-				verificaTaxaDeOcupacao++;
+				qtosNos++;
 				if (this->hashTable[i].getTamanho() > 1)
 				{
-					verificaQuantidadeLista++;
+					qtasListas++;
 					if (this->hashTable[i].getTamanho() > this->tamanhoMaximoDasListas)
-						verificaTamanhoLista = true;
+						qtasListasComTamanhoEmExcesso = true;
 				}
 			}
 		}
 
-		if (verificaTamanhoLista || verificaQuantidadeLista >= this->quantidadeMaximaDeListas || verificaTaxaDeOcupacao >= this->taxaMaximaDeOcupacao)
+		if (qtasListasComTamanhoEmExcesso || qtasListas >= this->quantidadeMaximaDeListas || qtosNos >= this->taxaMaximaDeOcupacao)
 			return this->aumentarHashTable();
+			
 		return false;
 	}
 
@@ -137,10 +173,16 @@ protected:
 			{
 				if (!this->isEmpty(i))
 				{
-					for (int j = 0; j < this->hashTable[i].getTamanho(); j++)
-						aux.inserir(this->hashTable[i][j].getDado().chave, this->hashTable[i][j].getDado().dado);
+					(this->hashTable + i)->iniciarPercursoSequencial();
+					while ((this->hashTable + i)->podePercorrer())
+						aux.inserir((this->hashTable + i)->getAtual()->getDado()->chave, (this->hashTable + i)->getAtual()->getDado()->dado);
 				}
 			}
+			this->length = novoLength;
+			this->quantidadeMaximaDeListas = aux.quantidadeMaximaDeListas;
+			this->taxaMaximaDeOcupacao = aux.taxaMaximaDeOcupacao;
+			this->hashTable = aux.hashTable;
+			return true;
 		}
 	}
 
@@ -158,7 +200,7 @@ protected:
 		return fact;
 	}
 
-	bool isEmpty(const int pos)
+	bool isEmpty(const int& pos) const
 	{
 		return (this->hashTable + pos)->isEmpty();
 	}
@@ -178,4 +220,6 @@ private:
 
 	float taxaMaximaDeOcupacao;
 	bool ehPadrao;
+
+	friend class NoHashTable;
 };
