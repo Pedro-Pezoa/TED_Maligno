@@ -15,9 +15,12 @@ class NoArvore
 			dado = new Tipo(novoDado);
 		}
 
-		NoArvore(const Tipo &novoDado, NoArvore* Esquerda, NoArvore* Direita, NoArvore* Pai) : esq(Esquerda), dir(Direita), pai(Pai)
+		NoArvore(const Tipo &novoDado, NoArvore* Esquerda, NoArvore* Direita, NoArvore* Pai)
 		{
 			dado = new Tipo(novoDado);
+			esq = Esquerda;
+			dir = Direita;
+			pai = Pai;
 		}
 
 		NoArvore(const NoArvore<Tipo> &novoDado) : esq(novoDado.getEsquerda()), dir(novoDado.getDireita()), pai(novoDado.getPai())

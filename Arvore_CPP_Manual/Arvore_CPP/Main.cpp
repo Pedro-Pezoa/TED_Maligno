@@ -32,8 +32,7 @@ int main()
 	string lido = "";
 	Arvore<int> arv = Arvore<int>();
 	char espaco = ' ';
-	string default_command = "insert 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30";
-
+	string default_command = "";
 	// escrevendo o painel padrão
 	cout << "BOT> Ola, digite 'insert X' ou 'inserir X' para inserir o NUMERO INTEIRO X" << endl;
 	cout << "BOT> Digite 'delete X' ou 'deletar X' para deletar o NUMERO INTEIRO X" << endl;
@@ -63,6 +62,12 @@ int main()
 		{
 			if (comando[0] == "exit" || comando[0] == "sair")
 				break;
+			else if (comando[0] == "right" || comando[0] == "certo")
+			{
+				// para cada item após o "delete", nós deletamos esse item
+				// mas se não for um número, não excluímos
+				cout << ((arv.verSeTaCertoMesmo(arv.getRaiz())) ? ("Tá certo") : ("Tá errado")) << endl;
+			}
 		}
 		// se forem 2 palavras ou mais, pode ser que seja ou "insert" ou "delete"
 		else if (comando.size() >= 2)
@@ -103,6 +108,19 @@ int main()
 					// mas se não for um número, não excluímos
 					if (ehNumero(comando[i]))
 						cout << arv.viewNo(atoi(comando[i].c_str())) << endl;
+					// mostramos para o usuário que ele errou na digitação
+					else
+						cout << "BOT> " << comando[i] << " nao eh um numero inteiro" << endl;
+				}
+			}
+			else if (comando[0] == "right" || comando[0] == "certo")
+			{
+				// para cada item após o "delete", nós deletamos esse item
+				for (int i = 1; i < comando.size(); i++)
+				{
+					// mas se não for um número, não excluímos
+					if (ehNumero(comando[i]))
+						cout << ((arv.verSeTaCertoMesmo(atoi(comando[i].c_str())))?("Tá certo"):("Tá errado")) << endl;
 					// mostramos para o usuário que ele errou na digitação
 					else
 						cout << "BOT> " << comando[i] << " nao eh um numero inteiro" << endl;

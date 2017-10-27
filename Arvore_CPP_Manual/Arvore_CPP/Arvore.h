@@ -126,6 +126,7 @@ class Arvore
 			cout << "BOT> Incluido o " << novoDado << endl;
 			// incluímos
 			this->incluirRecur(novoDado, raiz);
+			//this->setaPaiTudo(this->raiz);
 			// balanceamos
 			this->balancear(0);
 		}
@@ -167,6 +168,31 @@ class Arvore
 				return getNoTal(auxiliar->getDireita(), i);
 			else
 				return auxiliar;
+		}
+
+		bool verSeTaCertoMesmo(const int& param)
+		{
+			NoArvore<Tipo>* no = getNoTal(this->raiz, param);
+			return verSeTaCerto(no);
+		}
+
+		bool verSeTaCerto(NoArvore<Tipo>* auxiliar)
+		{
+			if (auxiliar == nullptr)
+				return true;
+
+			bool esquerda = true, direita = true, esse = true;
+			if (auxiliar->getEsquerda() != nullptr)
+			{
+				esse = auxiliar->getDado() > auxiliar->getEsquerda()->getDado();
+				esquerda = verSeTaCerto(auxiliar->getEsquerda());
+			}
+			if (auxiliar->getDireita() != nullptr)
+			{
+				esse = esse && auxiliar->getDado() < auxiliar->getDireita()->getDado();
+				direita = verSeTaCerto(auxiliar->getDireita());
+			}
+			return esquerda && direita && esse;
 		}
 
 		friend class Pilha<Tipo>;
@@ -541,6 +567,20 @@ class Arvore
 					break;
 				pilha.desempilhar();
 			}
+		}
+
+		void setaPaiTudo(NoArvore<Tipo> *paizao)
+		{
+			if (paizao == nullptr)
+				return;
+
+			if (paizao->getDireita() != nullptr)
+				paizao->getDireita()->setPai(paizao);
+			if (paizao->getEsquerda() != nullptr)
+				paizao->getEsquerda()->setPai(paizao);
+
+			setaPaiTudo(paizao->getDireita());
+			setaPaiTudo(paizao->getEsquerda());
 		}
 
 		// exclúi recursivamente o nó com o dado desejado
@@ -1051,15 +1091,15 @@ class Arvore
 							noFFD->getPai()->setDireita(noFFD);
 					}
 
-					no->setEsquerda(noFFD->getEsquerda());
-					if (no->getEsquerda() != nullptr)
-						no->getEsquerda()->setPai(no);
+					no->setEsquerda(noFFD->getDireita());
+					if (no->getDireita() != nullptr)
+						no->getDireita()->setPai(no);
 
 					noFE->setPai(noFFD);
 					no->setPai(noFFD);
-					noFE->setDireita(noFFD->getDireita());
-					if (noFE->getDireita() != nullptr)
-						noFE->getDireita()->setPai(noFE);
+					noFE->setDireita(noFFD->getEsquerda());
+					if (noFE->getEsquerda() != nullptr)
+						noFE->getEsquerda()->setPai(noFE);
 					noFFD->setDireita(no);
 					noFFD->setEsquerda(noFE);
 
@@ -1173,22 +1213,17 @@ class Arvore
 				{
 					// achamos o nó errado e o seu pai
 					NoArvore<Tipo>* oi = acharNoErroneo(this->raiz);
-					NoArvore<Tipo>* pai = oi;
-					do
+					while (oi != nullptr)
 					{
-						// setamos o pai
-						pai = pai->getPai();
 
 						// giramos para o lado certo
 						if (verificaDireitaMaiorIgual(oi))
 							girar(oi, GIRO_PARA_ESQUERDA);
 						else
 							girar(oi, GIRO_PARA_DIREITA);
-
-						// colocamos o atual como pai
-						oi = pai;
-						// enquanto não está com o pai nulo (raiz)
-					} while (pai != nullptr);
+						// enquanto não está balanceado
+						oi = acharNoErroneo(this->raiz);
+					}
 				}
 				// se é inclusão
 				else if (tipo == 0)
@@ -1219,6 +1254,7 @@ class Arvore
 			{
 				cout << "BOT> Nao desbalanceou a arvore" << endl;
 			}
+			this->setaPaiTudo(this->raiz);
 		}
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//-------------------------------------------------------------------ATRIBUTOS---------------------------------------------------------------------------//
