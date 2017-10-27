@@ -46,6 +46,8 @@ public:
 	// retorna se incluiu com sucesso ou não
 	bool inserir(const TipoKey& key, const TipoDado& dado)
 	{
+		if (existe(key))
+			return false;
 		NoHashTable novoNo = NoHashTable(key, dado);
 		int pos = this->calcularPosicao(key);
 		(this->hashTable + pos)->inserirNoFim(novoNo);
@@ -58,6 +60,8 @@ public:
 	// retorna o dado removido
 	bool deletar(const TipoKey& key)
 	{
+		if (!existe(key))
+			return false;
 		int pos = this->calcularPosicao(key);
 		if (!this->isEmpty(pos))
 		{
@@ -67,7 +71,7 @@ public:
 			{
 				for (int i = 0; i < (this->hashTable + pos)->getTamanho(); i++)
 				{
-					if ((this->hashTable + pos)->operator[](i).chave == key)
+					if ((this->hashTable + pos)->operator[](i).getChave() == key)
 						(this->hashTable + pos)->removerPos(i);
 				}
 			}
@@ -83,7 +87,9 @@ public:
 	TipoDado obter(const TipoKey& key) const
 	{
 		int pos = this->calcularPosicao(key);
-		for (int i = 0; i < length; i++)
+		if ((this->hashTable + pos)->isEmpty())
+			return NULL;
+		for (int i = 0; i < (this->hashTable + pos)->getTamanho(); i++)
 		{
 			if ((this->hashTable + pos)->operator[](i).getChave() == key)
 				return (this->hashTable + pos)->operator[](i).getDado();
@@ -209,7 +215,7 @@ protected:
 
 	int calcularPosicao(const TipoKey& key) const
 	{
-		hash<TipoDado> hashCode;
+		hash<TipoKey> hashCode;
 		return hashCode(key) % this->length;
 	}
 
