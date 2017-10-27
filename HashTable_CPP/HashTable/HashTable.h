@@ -16,6 +16,8 @@ public:
 	//------------------------------------------------------------------CONSTRUTORES-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
+	HashTable(){}
+
 	HashTable(const bool& ehPadrao, const float& _novoLength = 6, const int& _novaTaxaDeCrescimento = 3, const float& _novaTaxaDeOcupacao = 50, const int& _novoTamanhoMaximoLista = 3) :
 		size(0), ehPadrao(ehPadrao), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), 
 		tamanhoMaximoDasListas(_novoTamanhoMaximoLista), quantidadeMaximaDeListas(_novoLength * (_novaTaxaDeOcupacao / 100.0)), taxaMaximaDeOcupacao(_novoLength * (_novaTaxaDeOcupacao / 100.0))

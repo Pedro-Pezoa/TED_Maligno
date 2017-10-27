@@ -37,15 +37,44 @@ bool ehNumero(string str)
 
 int main(int argc, _TCHAR* argv[])
 {
-	HashTable<string, int> hash = HashTable<string, int>(false, 10, 10, 0);
-
+	HashTable<string, int> hash;
 	char espaco = ' ';
 	string lido = "";
 	string default_command = "";
+
+	string resposta = "";
+	string valor1 = "";
+	string valor2 = "";
+	string valor3 = "";
+
 	// escrevendo o painel padrão
 	cout << "BOT> Ola, digite 'insert <chave> <valor>' ou 'inserir <chave> <valor>' para inserir o NUMERO INTEIRO  na CHAVE STRING" << endl;
 	cout << "BOT> Digite 'delete X' ou 'deletar X' para deletar a CHAVE X" << endl;
 	cout << "BOT> Digite 'exit' ou 'sair' para sair" << endl;
+
+	cout << "\nBOT> Deseja criar uma HashTable padrão?" << endl;
+	cout << "USER> <S/N> ";
+	cin >> resposta;
+
+	if (resposta == "N")
+	{
+		cout << "BOT> HashTable personalizada selecionada" << endl;
+		cout << "BOT> Digite os respectivos dados(Sem ser zero)" << endl;
+
+		cout << "BOT> Tamanho: " << endl;
+		cin >> valor1;
+		cout << "BOT> Taxa de crescimento:" << endl;
+		cin >> valor2;
+		cout << "BOT> Quantidade maxima de ocupacao: " << endl;
+		cin >> valor3;
+		hash = HashTable<string, int>(false, ehNumero(valor1), ehNumero(valor2), ehNumero(valor3));
+	}
+	else
+	{
+		cout << "BOT> HashTable padrao selecionada" << endl;
+		hash = HashTable<string, int>(true);
+	}
+	cout << "BOT> HashTable criada" << endl;
 
 	// loop infinito para o menu
 	while (1)
@@ -104,7 +133,7 @@ int main(int argc, _TCHAR* argv[])
 				// para cada item após o "delete", nós deletamos esse item
 				for (int i = 1; i < comando.size(); i++)
 				{
-					cout << ((hash.deletar(comando[i])) ? ("BOT> Excluiu a chave " + comando[i + 1]) : ("BOT> Nao existe essa chave")) << endl;
+					cout << ((hash.deletar(comando[i])) ? ("BOT> Excluiu a chave " + comando[i]) : ("BOT> Nao existe essa chave")) << endl;
 				}
 			}
 			else if (comando[0] == "ver" || comando[0] == "view")
