@@ -9,7 +9,7 @@
 
 int main(int argc, _TCHAR* argv[])
 {
-	HashTable<char, int> hash = HashTable<char, int>(false, 5, 5);
+	HashTable<char, int> hash = HashTable<char, int>(false, 10, 10, 0);
 	//HashTable<char, int> hash = HashTable<char, int>(true);
 	hash.inserir('a', 5);
 	hash.inserir('f', 15);
@@ -17,6 +17,9 @@ int main(int argc, _TCHAR* argv[])
 	hash.inserir('g', 45);
 	hash.inserir('i', 95);
 	hash.inserir('k', 85);
+	hash.inserir('h', 40);
+	hash.inserir('l', 90);
+	hash.inserir('x', 80);
 
 	cout << hash << endl;
 	/*
