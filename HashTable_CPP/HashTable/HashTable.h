@@ -84,23 +84,23 @@ public:
 	}
 
 	// devolve o dado da chave do parâmetro, caso não exista retorna nullptr
-	TipoDado obter(const TipoKey& key) const
+	TipoDado* obter(const TipoKey& key) const
 	{
 		int pos = this->calcularPosicao(key);
 		if ((this->hashTable + pos)->isEmpty())
-			return NULL;
+			return nullptr;
 		for (int i = 0; i < (this->hashTable + pos)->getTamanho(); i++)
 		{
 			if ((this->hashTable + pos)->operator[](i).getChave() == key)
-				return (this->hashTable + pos)->operator[](i).getDado();
+				return (this->hashTable + pos)->operator[](i).getPontDado();
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	// retorna se o dado existe ou não
 	bool existe(const TipoKey& key) const
 	{
-		return this->obter(key) != NULL;
+		return this->obter(key) != nullptr;
 	}
 
 	friend ostream& operator<<(ostream &sai, const HashTable<TipoKey, TipoDado>& outro)
@@ -110,11 +110,11 @@ public:
 
 	string toString() const
 	{
-		string texto = "{\n";
+		string texto = "\n{";
 		for (int i = 0; i < this->length; i++)
 		{
 			if (!this->isEmpty(i))
-				texto += to_string(i) + this->hashTable[i].toString() + ";\n";
+				texto += to_string(i) + this->hashTable[i].toString() + ";";
 		}
 		return texto + "}";
 	}
@@ -131,27 +131,37 @@ protected:
 	public:
 		NoHashTable(const TipoKey& novaChave = NULL, const TipoDado& novoDado = NULL)
 		{
-			chave = novaChave;
-			dado = novoDado;
+			chave = new TipoKey(novaChave);
+			dado = new TipoDado(novoDado);
 		}
 
 		TipoKey getChave() const
 		{
-			return this->chave;
+			return *this->chave;
 		}
 
 		TipoDado getDado() const
+		{
+			return *this->dado;
+		}
+
+		TipoKey* getPontChave() const
+		{
+			return this->chave;
+		}
+
+		TipoDado* getPontDado() const
 		{
 			return this->dado;
 		}
 
 		string toString() const
 		{
-			return "Key:" + to_string(this->chave) + " Data: " + to_string(this->dado);
+			return "Key:" + to_string(*this->chave) + " Data: " + to_string(*this->dado);
 		}
 	private:
-		TipoKey chave;
-		TipoDado dado;
+		TipoKey* chave;
+		TipoDado* dado;
 	};
 
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------//

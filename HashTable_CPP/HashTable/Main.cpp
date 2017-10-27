@@ -111,7 +111,7 @@ int main(int argc, _TCHAR* argv[])
 			{
 				int* dado = hash.obter(comando[1]);
 				if (dado != nullptr)
-					cout << "BOT> O valor de '" << comando[1] << "' eh: " << dado << endl;
+					cout << "BOT> O valor de '" << comando[1] << "' eh: " << *dado << endl;
 				else
 					cout << "BOT> Essa chave não existe" << endl;
 			}
