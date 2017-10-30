@@ -32,7 +32,7 @@ int main()
 	string lido = "";
 	Arvore<int> arv = Arvore<int>();
 	char espaco = ' ';
-	string default_command = "";
+	string default_command = "insert 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30";
 	// escrevendo o painel padrão
 	cout << "BOT> Ola, digite 'insert X' ou 'inserir X' para inserir o NUMERO INTEIRO X" << endl;
 	cout << "BOT> Digite 'delete X' ou 'deletar X' para deletar o NUMERO INTEIRO X" << endl;

@@ -16,6 +16,7 @@ using namespace std;
 #define TIPO_STRUCT_ACHARNOERRONEO 6
 #define TIPO_STRUCT_EXCLUIRRECUR 7
 #define TIPO_STRUCT_MAIORNIVELRECUR 8
+#define TIPO_STRUCT_SETPAITUDO 9
 
 template <class Tipo>
 class Arvore
@@ -79,15 +80,15 @@ class Arvore
 					aux = new NoArvore<Tipo>(getMenorDosMaiores(this->raiz));
 
 				ret = this->excluirRecur(aux->getDado(), raiz, nada);
+
 				this->raiz->setDado(aux->getDado());
-
-				if (raiz != nullptr)
-					cout << "BOT> Nova raiz: " << this->raiz->getDado() << endl;
-
 				if (this->raiz->getEsquerda() == nullptr || this->raiz->getDireita() == nullptr)
 					this->balancear(1);
 				else
 					this->balancear(2);
+
+				if (raiz != nullptr)
+					cout << "BOT> Nova raiz: " << this->raiz->getDado() << endl;
 				return true;
 			}
 			else
@@ -385,6 +386,28 @@ class Arvore
 			}
 		};
 
+		typedef struct structSetPaiTudo : IEmpilhavel
+		{
+			NoArvore<Tipo> *no;
+			structSetPaiTudo() {
+				tipo = TIPO_STRUCT_SETPAITUDO;
+			}
+			structSetPaiTudo* clone()
+			{
+				return new structSetPaiTudo(this->no);
+			}
+		protected:
+			structSetPaiTudo(const NoArvore<Tipo>* novoNo)
+			{
+				this->no = new NoArvore<Tipo>();
+				this->no->setPai(novoNo->getPai());
+				this->no->setEsquerda(novoNo->getEsquerda());
+				this->no->setDireita(novoNo->getDireita());
+				this->no->setDado(novoNo->getDado());
+				this->tipo = TIPO_STRUCT_SETPAITUDO;
+			}
+		};
+
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 		//------------------------------------------------------------------METODOS AUXILIARES-------------------------------------------------------------------//
 		//-------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -569,18 +592,68 @@ class Arvore
 			}
 		}
 
-		void setaPaiTudo(NoArvore<Tipo> *paizao)
+		void setaPaiTudo(NoArvore<Tipo> *no)
 		{
-			if (paizao == nullptr)
+			if (no == nullptr)
 				return;
 
-			if (paizao->getDireita() != nullptr)
-				paizao->getDireita()->setPai(paizao);
-			if (paizao->getEsquerda() != nullptr)
-				paizao->getEsquerda()->setPai(paizao);
+			structSetPaiTudo* aStruct = new structSetPaiTudo();
+			inicio:
+			// se for folha, consideramos balanceado o nó
+			if (no->getDireita() == nullptr && no->getEsquerda() == nullptr)
+			{
+				desempilhar:
+				if (dynamic_cast<structSetPaiTudo*>(pilha.getTopo()))
+				{
+					aStruct = dynamic_cast<structSetPaiTudo*>(pilha.desempilhar());
+					if (aStruct->no->getEsquerda() == no)
+					{
+						no = aStruct->no;
+						goto direita;
+					}
+					else if (aStruct->no->getDireita() == no)
+					{
+						no = aStruct->no;
+						goto esquerda;
+					}
+					else
+					{
+						no = aStruct->no;
+						goto direita;
+					}
+				}
+				else
+				{
+					while (dynamic_cast<structSetPaiTudo*>(pilha.getTopo()))
+						this->pilha.desempilhar();
+					return;
+				}
+			}
 
-			setaPaiTudo(paizao->getDireita());
-			setaPaiTudo(paizao->getEsquerda());
+			if (no->getDireita() != nullptr)
+				no->getDireita()->setPai(no);
+
+			if (no->getEsquerda() != nullptr)
+				no->getEsquerda()->setPai(no);
+
+			aStruct->no = no;
+			this->pilha.empilhar(aStruct);
+
+			esquerda:
+			if (no->getEsquerda() != nullptr)
+			{
+				no = no->getEsquerda();
+				goto inicio;
+			}
+
+			direita:
+			if (no->getDireita() != nullptr)
+			{
+				no = no->getDireita();
+				goto inicio;
+			}
+			else
+				goto desempilhar;
 		}
 
 		// exclúi recursivamente o nó com o dado desejado
@@ -1203,7 +1276,6 @@ class Arvore
 		{
 			// verificar se o balanceamento está correto
 			// se sim, acabou...
-			cout << "RAIS CARAI " << raiz->getDado() << endl;
 			if (!verificaBalanceamento(this->raiz))
 			{
 				// se não, temos que ajustar
