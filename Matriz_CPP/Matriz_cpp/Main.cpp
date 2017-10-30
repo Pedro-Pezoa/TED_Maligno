@@ -11,15 +11,14 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	int birl = 0;
 	
-	Matriz<string> m = Matriz<string>(10, 10, "nao", "sim");
+	Matriz<string> m = Matriz<string>(5, 5, "nao");
 
-	m[0][0]= "sim";
-	m[0][1] = "sim";
-	m[0][2] = "sim";
-	m[0][3] = "sim";
-	m[1][3] = "sim";
-	m[0][3] = "nao";
-	//cout << m[0][0] << endl;
+	m[0][0] = "vn";
+	m[0][1] = "as";
+	m[0][2] = "db";
+	m[0][3] = "it";
+	m[1][3] = "hl";
+	
 
 	//cout << m[1][1] << endl;
 	cout << m[0][0] << endl;
@@ -27,6 +26,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	cout << m[0][2] << endl;
 	cout << m[0][3] << endl;
 	cout << m[1][3] << endl;
+
+
+	cout << endl;
+	m[0][3] = "nao";
+
+	cout << m[0][0] << endl;
+	cout << m[0][1] << endl;
+	cout << m[0][2] << endl;
+	cout << m[0][3] << endl;
+	cout << m[1][3] << endl;
+	cout << m[1][2] << endl;
 
 	cin >> birl;
 
