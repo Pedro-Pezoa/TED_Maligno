@@ -143,10 +143,9 @@ protected:
 	{
 		if (this->existe(x, y))
 		{
-			NoMatriz novoNo = NoMatriz(y, "");
 			int pos = this->indexDeRow(x);
 			//this->row->removerPos(pos);
-			return this->col->operator[](pos)->removerPos(y);
+			return this->col->operator[](pos)->removerPos(this->indexDeColumn(y, x));
 		}
 	}
 

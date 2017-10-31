@@ -50,24 +50,27 @@ int main(int argc, _TCHAR* argv[])
 	// escrevendo o painel padrão
 	cout << "BOT> Ola, digite 'insert <chave> <valor>' ou 'inserir <chave> <valor>' para inserir o NUMERO INTEIRO  na CHAVE STRING" << endl;
 	cout << "BOT> Digite 'delete X' ou 'deletar X' para deletar a CHAVE X" << endl;
-	cout << "BOT> Digite 'exit' ou 'sair' para sair" << endl;
+	cout << "BOT> Digite 'exit' ou 'sair' para sair" << endl << endl;
 
-	cout << "\nBOT> Deseja criar uma HashTable padrão?" << endl;
-	cout << "USER> <S/N> ";
+	pedirTipoHashTable:
+	cout << "BOT> Deseja criar uma HashTable padrao?" << endl;
+	cout << "USER> <[s]/n> ";
 	cin >> resposta;
 
-	if (resposta == "N")
+	if (resposta == "n" || resposta == "N")
 	{
 		cout << "BOT> HashTable personalizada selecionada" << endl;
-		cout << "BOT> Digite os respectivos dados(Sem ser zero)" << endl;
+		cout << "BOT> Digite os respectivos dados (sem ser zero)" << endl;
 
 		cout << "BOT> Tamanho: " << endl;
 		cin >> valor1;
-		cout << "BOT> Taxa de crescimento:" << endl;
+		cout << "BOT> Taxa de crescimento: " << endl;
 		cin >> valor2;
 		cout << "BOT> Quantidade maxima de ocupacao: " << endl;
 		cin >> valor3;
-		hash = HashTable<string, int>(false, ehNumero(valor1), ehNumero(valor2), ehNumero(valor3));
+		if (!ehNumero(valor1) || !ehNumero(valor2) || !ehNumero(valor3))
+			goto pedirTipoHashTable;
+		hash = HashTable<string, int>(false, atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()));
 	}
 	else
 	{
@@ -142,7 +145,7 @@ int main(int argc, _TCHAR* argv[])
 				if (dado != nullptr)
 					cout << "BOT> O valor de '" << comando[1] << "' eh: " << *dado << endl;
 				else
-					cout << "BOT> Essa chave não existe" << endl;
+					cout << "BOT> Essa chave nao existe" << endl;
 			}
 		}
 		// printamos o resultado da árvore, como ela está no momento
