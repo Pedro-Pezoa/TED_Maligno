@@ -45,8 +45,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	vector<string> comando;
 	
 	// escrevendo o painel padrão
-	cout << "BOT> Ola, digite 'insert X' ou 'inserir X' para inserir o NUMERO INTEIRO X" << endl;
-	cout << "BOT> Digite 'delete X' ou 'deletar X' para deletar o NUMERO INTEIRO X" << endl;
+	cout << "BOT> Ola, digite 'insert X Y N' ou 'inserir X Y N' para inserir o NUMERO INTEIRO N na posicao X,Y" << endl;
+	cout << "BOT> Digite 'delete X Y' ou 'deletar X Y' para deletar a coordenada X,Y" << endl;
+	cout << "BOT> Digite 'view X Y' ou 'ver X Y' para obter o valor de X,Y" << endl;
 	cout << "BOT> Digite 'exit' ou 'sair' para sair" << endl;
 	// obtendo o tamanho da matriz pelo
 	// insistente input do usuário
@@ -110,7 +111,7 @@ int _tmain(int argc, _TCHAR* argv[])
 							cout << "BOT> O valor " << (*matrix)[atoi(comando[i].c_str())][atoi(comando[i].c_str()) + 1] << " foi colocado na matriz." << endl;
 						}// mostramos para o usuário que ele errou na digitação
 						else
-							cout << "BOT> " << comando[i] << " nao eh um numero inteiro." << endl;
+							cout << "BOT> [" << comando[i] << "] e/ou [" << comando[i + 1] << "] e/ou [" << comando[i+2] << "] nao sao um numero inteiro." << endl;
 					}
 				}
 				else
@@ -126,10 +127,13 @@ int _tmain(int argc, _TCHAR* argv[])
 					{
 						// mas se não for um número, não excluímos
 						if (ehNumero(comando[i]) && ehNumero(comando[i + 1]))
+						{
 							(*matrix)[atoi(comando[i].c_str())][atoi(comando[i].c_str()) + 1] = 0;
+							cout << "BOT> O valor de " << comando[i] << "," << comando[i+1] << " foi removido." << endl;
+						}
 						// mostramos para o usuário que ele errou na digitação
 						else
-							cout << "BOT> " << comando[i] << " nao eh um numero inteiro." << endl;
+							cout << "BOT> [" << comando[i] << "] e/ou [" << comando[i+1] << "] nao sao um numero inteiro." << endl;
 					}
 				}
 				else
@@ -157,7 +161,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		// printamos o resultado da matriz, como ela está no momento
 		// mas se a matriz for muito grande, ocasionará erros
-		//cout << *matrix << endl;
+		if (matrix->getHeight() < 10 && matrix->getWidth() < 10)
+		{
+			//cout << *matrix << endl;
+		}
 	}
 
 	return 0; // acabamos o programa
