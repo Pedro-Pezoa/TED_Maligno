@@ -9,7 +9,8 @@
 #include <sstream>
 #include <vector>
 
-void split(const string &s, char delim, vector<string> *resultado) {
+void split(const string &s, char delim, vector<string> *resultado) 
+{
 	stringstream streamDeString; // Um stream de string, para ler/escrever em streams
 	streamDeString.str(s);       // colocamos a nossa string nesse stream
 	string item;                 // criamos uma string para representar cada item lido do stream
@@ -17,7 +18,8 @@ void split(const string &s, char delim, vector<string> *resultado) {
 		resultado->push_back(item); // adicionamos ao final o item separado pelo delimitador
 }
 
-vector<string> split(const string &s, char delim) {
+vector<string> split(const string &s, char delim) 
+{
 	vector<string> elems; // o que será retornado
 	split(s, delim, &elems); // usamos ele pro split
 	return elems; // retornamos ele
@@ -117,27 +119,21 @@ int main(int argc, _TCHAR* argv[])
 					{
 						// mas se não for um número, não adicionamos
 						if (ehNumero(comando[i+1]))
-						{
 							cout << ((hash.inserir(comando[i].c_str(), atoi(comando[i+1].c_str())))?("BOT> Adicionou a chave "+comando[i+1]):("BOT> Ja existe essa chave")) << endl;
-						}
 						// mostramos para o usuário que ele errou na digitação
 						else
 							cout << "BOT> '" << comando[i+1] << "' nao eh um numero inteiro" << endl;
 					}
 				}
 				else
-				{
 					cout << "BOT> Você errou tiu" << endl;
-				}
 			}
 			// se for "delete", então deletamos
 			else if (comando[0] == "delete" || comando[0] == "deletar")
 			{
 				// para cada item após o "delete", nós deletamos esse item
 				for (int i = 1; i < comando.size(); i++)
-				{
 					cout << ((hash.deletar(comando[i])) ? ("BOT> Excluiu a chave " + comando[i]) : ("BOT> Nao existe essa chave")) << endl;
-				}
 			}
 			else if (comando[0] == "ver" || comando[0] == "view")
 			{

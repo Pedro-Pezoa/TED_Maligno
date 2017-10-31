@@ -30,6 +30,11 @@ bool ehNumero(string str)
 	return !(*p); // se tiver, deu errado a conversão, e não tiver, não deu erro
 }
 
+string to_string(string aux)
+{
+	return aux;
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	// instanciando variáveis importantes
@@ -43,7 +48,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	cout << "BOT> Ola, digite 'insert X' ou 'inserir X' para inserir o NUMERO INTEIRO X" << endl;
 	cout << "BOT> Digite 'delete X' ou 'deletar X' para deletar o NUMERO INTEIRO X" << endl;
 	cout << "BOT> Digite 'exit' ou 'sair' para sair" << endl;
-
 	// obtendo o tamanho da matriz pelo
 	// insistente input do usuário
 	comecoLoop:

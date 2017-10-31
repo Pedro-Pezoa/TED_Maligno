@@ -6,12 +6,13 @@ using namespace std;
 template <class Tipo>
 class Matriz
 {
-public:
+private:
+
 	//---------------------------------------------------------------------------------------------------------------------------------//
-	//------------------------------------------------------CLASSE AUXILIAR------------------------------------------------------------//
+	//------------------------------------------------------CLASSES AUXILIARES---------------------------------------------------------//
 	//---------------------------------------------------------------------------------------------------------------------------------//
 
-	class CRow 
+	class CRow
 	{
 		friend class Matriz;
 	public:
@@ -26,7 +27,7 @@ public:
 		int row;
 	};
 
-	typedef struct NoMatriz 
+	typedef struct NoMatriz
 	{
 	public:
 		NoMatriz()
@@ -60,26 +61,18 @@ public:
 		{
 			return this->dado;
 		}
-
-		void setPos(const int& novoPos) 
-		{
-			*this->pos = novoPos;
-		}
-
-		void setDado(const Tipo& novoDado)
-		{
-			*this->dado = novoDado;
-		}
 	private:
 		int* pos;
 		Tipo* dado;
 	};
 
+public:
+
 	//---------------------------------------------------------------------------------------------------------------------------------//
-	//-------------------------------------------------CONSTRUTORES/DESTRUTOR----------------------------------------------------------//
+	//---------------------------------------------------------CONSTRUTORES------------------------------------------------------------//
 	//---------------------------------------------------------------------------------------------------------------------------------//
 
-	Matriz(int sizeX, int sizeY, Tipo novoValorNormal) : width(sizeY), height(sizeX)
+	Matriz(int sizeX, int sizeY, Tipo novoValorNormal) : width(sizeX), height(sizeY)
 	{
 		this->valorNormal = novoValorNormal;
 		this->row = new ListaDupla<int>();
@@ -99,11 +92,6 @@ public:
 		this->bufferValor = nullptr;
 	}
 
-	CRow operator[](const int& row)
-	{
-		return CRow(*this, row);
-	}
-
 int Matriz::getWidth() const
 {
 	return this->width;
@@ -114,6 +102,11 @@ int Matriz::getHeight() const
 	return this->height;
 }
 
+CRow operator[](const int& row)
+{
+	return CRow(*this, row);
+}
+
 protected:
 	//---------------------------------------------------------------------------------------------------------------------------------//
 	//----------------------------------------------------MÉTODOS PRINCIPAIS-----------------------------------------------------------//
@@ -122,11 +115,16 @@ protected:
 	{
 		bool linha = this->existeLinha(x);
 		NoMatriz novoNo = NoMatriz(y, valor);
+		NoMatriz noVazio = NoMatriz();
 
 		if (!linha)
 		{
 			this->row->inserirNoFim(x);
 			this->col->inserirNoFim(new ListaDupla<NoMatriz>());
+
+			for (int i = 0; i < y; i++)
+				this->col->operator[](this->col->getTamanho() - 1)->inserirNoFim(noVazio);
+			
 			this->col->operator[](this->col->getTamanho() - 1)->inserirNoFim(novoNo);
 		}
 		else
@@ -235,11 +233,45 @@ protected:
 		return -1;
 	}
 
+	string toString()
+	{
+		this->saveProgress();
+		string txt = "| ";
+		int i = 0;
+		int j = 0;
+
+		ListaDupla<NoMatriz>* lista = nullptr;
+		NoMatriz dado = NoMatriz();
+		while (i < this->height)
+		{
+			lista = this->col->operator[](i);
+			if (lista == nullptr)
+				txt += this->valorNormal + " ";
+
+			else
+			{
+				dado = lista->operator[](j);
+				if (dado.getDado() == this->valorNormal || dado.getDado() == Tipo())
+					txt += this->valorNormal + " ";
+				else
+					txt += to_string(dado.getDado()) + " ";
+			}
+
+			if (++j >= this->width)
+			{
+				j = 0;
+				i++;
+				txt += "|\n| ";
+			}
+		}
+		return txt.substr(0, txt.length()-3);
+	}
+
 	//---------------------------------------------------------------------------------------------------------------------------------//
 	//-----------------------------------------------------------OPERATORS-------------------------------------------------------------//
 	//---------------------------------------------------------------------------------------------------------------------------------//
 
-	Tipo* operator()(const int& i, const int& o)
+	Tipo* operator()(const int& o, const int& i)
 	{
 		this->saveProgress();
 		if (i < 0 || o < 0 || i >= this->width || o >= this->height)
@@ -290,19 +322,22 @@ protected:
 		}
 	}
 
+	// Printa o conteúdo da classe
+	friend ostream& operator<<(ostream &sai, Matriz<Tipo>& outro)
+	{
+		return (sai << outro.toString());
+	}
+
 	//---------------------------------------------------------------------------------------------------------------------------------//
 	//-------------------------------------------------------ATRIBUTOS-----------------------------------------------------------------//
 	//---------------------------------------------------------------------------------------------------------------------------------//
-	ListaDupla<int>* row;            // 0:30 1:40 2:50
+
+	ListaDupla<int>* row;                  // 0:30 1:40 2:50
 	ListaDupla<ListaDupla<NoMatriz>*>* col;// 0:[40,50] 1:[30,50] 2:[30,40]
 
-	Tipo valorNormal;
-	int width, height;
-	Tipo* bufferValor;
-	int* bufferPosX;
-	int* bufferPosY;
+	Tipo* bufferValor, valorNormal;
+	int* bufferPosX, *bufferPosY, width, height;
 
 	friend class CRow;
 	friend class Matriz;
-private:
 };

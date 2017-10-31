@@ -297,8 +297,9 @@ public:
 
 	Tipo& operator[](const int &indice) const
 	{
+		Tipo dado = Tipo();
 		if (indice < 0 || indice >= tamanho)
-			return *(new Tipo());
+			return dado;
 
 		NoLista<Tipo>* atualReserva = this->inicio;
 		int contador = 0;
