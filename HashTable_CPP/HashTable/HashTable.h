@@ -7,6 +7,14 @@ using namespace std;
 #include <math.h>
 #include <xhash>
 
+#define DEFAULT_LENGTH 24
+#define DEFAULT_TAXA_CRESCIMENTO 4
+#define DEFAULT_TAXA_OCUPACAO 50
+#define DEFAULT_TAMANHO_MAXIMO_LISTA 3
+#define DEFAULT_OPERACAO '*'
+#define DEFAULT_DIFERENCA_TAM 2
+#define DEFAULT_DIFERENCA_POS 2
+
 template <class TipoKey, class TipoDado>
 
 class HashTable
@@ -17,15 +25,38 @@ public:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	// Construtor sem argumentos
-	HashTable(){}
+	HashTable() : size(0), ehPadrao(true), length(DEFAULT_LENGTH), taxaDeCrescimento(DEFAULT_TAXA_CRESCIMENTO), tamMaxDasListas(DEFAULT_TAMANHO_MAXIMO_LISTA), 
+		qtdMaxDeDados(DEFAULT_TAXA_CRESCIMENTO * (DEFAULT_TAXA_OCUPACAO / 100.0)), operacao(DEFAULT_OPERACAO), diferencaDeTam(DEFAULT_DIFERENCA)
+	{
+		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
+		for (int i = 0; i < length; i++)
+			*(this->hashTable + i) = ListaDupla<NoHashTable>();
+	}
 
 	// Construtor principal, se o primeiro parâmetro boolean for true, o construtor instância os atributos na forma padrão, se for false o construtor instância com os dados do usuário
-	HashTable(const bool& ehPadrao, const float& _novoLength = 6, const int& _novaTaxaDeCrescimento = 3, const float& _novaTaxaDeOcupacao = 50, const int& _novoTamanhoMaximoLista = 3) :
-		size(0), ehPadrao(ehPadrao), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), 
-		tamMaxDasListas(_novoTamanhoMaximoLista), qtdMaxDeListas(_novoLength * (_novaTaxaDeOcupacao / 100.0)), qtdMaxDeOcupacao(_novoLength * (_novaTaxaDeOcupacao / 100.0))
+	HashTable(const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, const unsigned int& _novaDif,
+			  const char& _novaOperacao) : size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), 
+			  qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)), operacao(_novaOperacao)
 	{
-		if (_novoLength <= 0 || _novaTaxaDeCrescimento <= 0 || _novaTaxaDeOcupacao <= 0 || _novoTamanhoMaximoLista <= 0)
-			*this = HashTable<TipoKey, TipoDado>(true);
+		if (_novoLength <= 0 || _novaTaxaDeCrescimento <= 0 || _novaTaxaDeOcupacao <= 0 || _novoTamanhoMaximoLista <= 0 || (_novaOperacao != '*' && _novaOperacao != '+') || _novaTaxaDeOcupacao >= 100)
+			*this = HashTable<TipoKey, TipoDado>();
+		else
+		{
+			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
+			for (int i = 0; i < length; i++)
+				*(this->hashTable + i) = ListaDupla<NoHashTable>();
+		}
+	}
+
+	//Construtor radical
+	HashTable(const bool& ehRadical, const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, 
+			  const unsigned int& _novaDif, const char& _novaOperacao, const unsigned int _novaDiferencaDeTam, const unsigned int _novaDiferencaDePos) :
+			  size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)),
+			  diferencaDeTam(_novaDif), operacao(_novaOperacao), diferencaDePos(_novaDiferencaDePos), diferencaDeTam(_novaDiferencaDeTam)
+	{
+		if (_novoLength <= 0 || _novaTaxaDeCrescimento <= 0 || _novaTaxaDeOcupacao <= 0 || _novoTamanhoMaximoLista <= 0 || (_novaOperacao != '*' && _novaOperacao != '+') || _novaTaxaDeOcupacao >= 100 ||
+			_novaDiferencaDePos <= 0 || _novaDiferencaDeTam <= 0)
+			*this = HashTable<TipoKey, TipoDado>();
 		else
 		{
 			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
@@ -35,9 +66,8 @@ public:
 	}
 
 	// Construtor de cópia
-	HashTable(const HashTable<TipoKey, TipoDado>& outro) :
-		size(outro.size), ehPadrao(outro.ehPadrao), length(outro.length), taxaDeCrescimento(outro.taxaDeCrescimento), tamMaxDasListas(outro.tamMaxDasListas), 
-		qtdMaxDeListas(outro.qtdMaxDeListas), qtdMaxDeOcupacao(outro.qtdMaxDeOcupacao)
+	HashTable(const HashTable<TipoKey, TipoDado>& outro) : size(outro.size), ehPadrao(outro.ehPadrao), length(outro.length), taxaDeCrescimento(outro.taxaDeCrescimento), tamMaxDasListas(outro.tamMaxDasListas), 
+		qtdMaxDeDados(outro.qtdMaxDeDados), ocupacao(outro.ocupacao)
 	{
 		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 		for (int i = 0; i < length; i++)
@@ -53,6 +83,7 @@ public:
 	{
 		if (existe(key))
 			return false;
+
 		NoHashTable novoNo = NoHashTable(key, dado);
 		int pos = this->calcularPosicao(key);
 		(this->hashTable + pos)->inserirNoFim(novoNo);
@@ -70,15 +101,10 @@ public:
 		int pos = this->calcularPosicao(key);
 		if (!this->isEmpty(pos))
 		{
-			if ((this->hashTable + pos)->getTamanho() == 1)
-				(this->hashTable + pos)->removerNoFim();
-			else
+			for (int i = 0; i < (this->hashTable + pos)->getTamanho(); i++)
 			{
-				for (int i = 0; i < (this->hashTable + pos)->getTamanho(); i++)
-				{
-					if ((this->hashTable + pos)->operator[](i).getChave() == key)
-						(this->hashTable + pos)->removerPos(i);
-				}
+				if ((this->hashTable + pos)->operator[](i).getChave() == key)
+					(this->hashTable + pos)->removerPos(i);
 			}
 		}
 		else
@@ -182,25 +208,37 @@ protected:
 	// Verifica se precisa aumentar a HashTable
 	bool precisaAumentar()
 	{
-		int qtasListas = 0;
-
-		if (this->size >= this->qtdMaxDeOcupacao)
+		if (this->size >= this->qtdMaxDeDados)
 			return this->aumentarHashTable();
 		else
 		{
 			for (int i = 0; i < this->length; i++)
 			{
-				if (this->hashTable[i].getTamanho() > 1)
-				{
-					qtasListas++;
-					if (this->hashTable[i].getTamanho() >= this->tamMaxDasListas)
-						return this->aumentarHashTable();
-				}
+				if ((this->hashTable + i)->getTamanho() >= this->tamMaxDasListas)
+					return this->aumentarHashTable();
 			}
 		}
 
-		if (qtasListas >= this->qtdMaxDeListas)
-			return this->aumentarHashTable();
+		if (ehRadical)
+		{
+			int tamMin = this->tamMaxDasListas+1;
+			int tamMax = 0;
+			/////////////////////////////////////////////////////////////
+			int atual = 0;
+			int prox = 1;
+			int menorValor = this->length+1;
+
+			for (int i = 0; i < this->length; i++)
+			{
+				if ((this->hashTable + i)->getTamanho() < tamMin)
+					tamMin = (this->hashTable + i)->getTamanho();
+
+				if ((this->hashTable + i)->getTamanho() > tamMax)
+					tamMax = (this->hashTable + i)->getTamanho();
+				/////////////////////////////////////////////////////////
+				if ((this->hashTable + prox))
+			}
+		}
 		return false;
 	}
 
@@ -211,13 +249,17 @@ protected:
 		HashTable<TipoKey, TipoDado>* aux = nullptr;
 		if (this->ehPadrao)
 		{
-			novoLength = this->fatorial(++this->taxaDeCrescimento);
-			aux = new HashTable<TipoKey, TipoDado>(true, novoLength, this->taxaDeCrescimento);
+			aux = new HashTable<TipoKey, TipoDado>(this->fatorial(++this->taxaDeCrescimento), this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operacao);
+			aux->ehPadrao = true;
 		}
 		else
 		{
-			novoLength = this->length + this->taxaDeCrescimento;
-			aux = new HashTable<TipoKey, TipoDado>(false, novoLength, this->taxaDeCrescimento, (this->qtdMaxDeOcupacao*100) / this->length, this->tamMaxDasListas);
+			if (this->operacao == '+')
+				novoLength = this->length + this->taxaDeCrescimento;
+			else
+				novoLength = this->length * this->taxaDeCrescimento;
+
+			aux = new HashTable<TipoKey, TipoDado>(novoLength, this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operacao);
 		}
 
 		for (int i = 0; i < this->length; i++)
@@ -264,12 +306,16 @@ private:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	ListaDupla<NoHashTable>* hashTable;
-	int size;
-	int length;
-	int taxaDeCrescimento;
-	int tamMaxDasListas;
-	int qtdMaxDeListas;
+	unsigned int size;
+	unsigned int length;
+	unsigned int taxaDeCrescimento;
+	unsigned int tamMaxDasListas;
 
-	float qtdMaxDeOcupacao;
+	float qtdMaxDeDados;
+	char operacao;
 	bool ehPadrao;
+
+	bool ehRadical;
+	unsigned int diferencaDeTam;
+	unsigned int diferencaDePos;
 };
