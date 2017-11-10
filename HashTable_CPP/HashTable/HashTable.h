@@ -26,26 +26,27 @@ public:
 
 	// Construtor sem argumentos
 	HashTable() : size(0), ehPadrao(true), length(DEFAULT_LENGTH), taxaDeCrescimento(DEFAULT_TAXA_CRESCIMENTO), tamMaxDasListas(DEFAULT_TAMANHO_MAXIMO_LISTA), 
-		qtdMaxDeDados(DEFAULT_TAXA_CRESCIMENTO * (DEFAULT_TAXA_OCUPACAO / 100.0)), operacao(DEFAULT_OPERACAO), diferencaDeTam(DEFAULT_DIFERENCA)
+		qtdMaxDeDados(DEFAULT_LENGTH * (DEFAULT_TAXA_OCUPACAO / 100.0)), operacao(DEFAULT_OPERACAO), ehRadical(false)
 	{
 		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
-		for (int i = 0; i < length; i++)
-			*(this->hashTable + i) = ListaDupla<NoHashTable>();
+	}
+
+	HashTable(const bool& _ehRadical) : size(0), ehPadrao(true), length(DEFAULT_LENGTH), taxaDeCrescimento(DEFAULT_TAXA_CRESCIMENTO), tamMaxDasListas(DEFAULT_TAMANHO_MAXIMO_LISTA),
+		qtdMaxDeDados(DEFAULT_LENGTH * (DEFAULT_TAXA_OCUPACAO / 100.0)), operacao(DEFAULT_OPERACAO), diferencaDeTam(DEFAULT_DIFERENCA_TAM), diferencaDePos(DEFAULT_DIFERENCA_POS),
+		ehRadical(_ehRadical)
+	{
+		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 	}
 
 	// Construtor principal, se o primeiro parâmetro boolean for true, o construtor instância os atributos na forma padrão, se for false o construtor instância com os dados do usuário
-	HashTable(const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, const unsigned int& _novaDif,
-			  const char& _novaOperacao) : size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), 
+	HashTable(const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, const char& _novaOperacao) : 
+			  size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), 
 			  qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)), operacao(_novaOperacao)
 	{
 		if (_novoLength <= 0 || _novaTaxaDeCrescimento <= 0 || _novaTaxaDeOcupacao <= 0 || _novoTamanhoMaximoLista <= 0 || (_novaOperacao != '*' && _novaOperacao != '+') || _novaTaxaDeOcupacao >= 100)
 			*this = HashTable<TipoKey, TipoDado>();
 		else
-		{
 			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
-			for (int i = 0; i < length; i++)
-				*(this->hashTable + i) = ListaDupla<NoHashTable>();
-		}
 	}
 
 	//Construtor radical
@@ -58,16 +59,12 @@ public:
 			_novaDiferencaDePos <= 0 || _novaDiferencaDeTam <= 0)
 			*this = HashTable<TipoKey, TipoDado>();
 		else
-		{
 			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
-			for (int i = 0; i < length; i++)
-				*(this->hashTable + i) = ListaDupla<NoHashTable>();
-		}
 	}
 
 	// Construtor de cópia
 	HashTable(const HashTable<TipoKey, TipoDado>& outro) : size(outro.size), ehPadrao(outro.ehPadrao), length(outro.length), taxaDeCrescimento(outro.taxaDeCrescimento), tamMaxDasListas(outro.tamMaxDasListas), 
-		qtdMaxDeDados(outro.qtdMaxDeDados), ocupacao(outro.ocupacao)
+		qtdMaxDeDados(outro.qtdMaxDeDados), operacao(outro.operacao)
 	{
 		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 		for (int i = 0; i < length; i++)
@@ -86,6 +83,9 @@ public:
 
 		NoHashTable novoNo = NoHashTable(key, dado);
 		int pos = this->calcularPosicao(key);
+
+		if (this->isEmpty(pos))
+			*(this->hashTable + pos) = ListaDupla<NoHashTable>();
 		(this->hashTable + pos)->inserirNoFim(novoNo);
 
 		this->size++;
@@ -104,7 +104,11 @@ public:
 			for (int i = 0; i < (this->hashTable + pos)->getTamanho(); i++)
 			{
 				if ((this->hashTable + pos)->operator[](i).getChave() == key)
+				{
 					(this->hashTable + pos)->removerPos(i);
+					if (this->isEmpty(pos))
+						delete(this->hashTable + pos);
+				}
 			}
 		}
 		else
@@ -118,7 +122,7 @@ public:
 	TipoDado* obter(const TipoKey& key) const
 	{
 		int pos = this->calcularPosicao(key);
-		if ((this->hashTable + pos)->isEmpty())
+		if (this->isEmpty(pos))
 			return nullptr;
 		for (int i = 0; i < (this->hashTable + pos)->getTamanho(); i++)
 		{
@@ -214,7 +218,7 @@ protected:
 		{
 			for (int i = 0; i < this->length; i++)
 			{
-				if ((this->hashTable + i)->getTamanho() >= this->tamMaxDasListas)
+				if (!this->isEmpty(i) && (this->hashTable + i)->getTamanho() >= this->tamMaxDasListas)
 					return this->aumentarHashTable();
 			}
 		}
@@ -225,19 +229,25 @@ protected:
 			int tamMax = 0;
 			/////////////////////////////////////////////////////////////
 			int atual = 0;
-			int prox = 1;
 			int menorValor = this->length+1;
 
 			for (int i = 0; i < this->length; i++)
 			{
-				if ((this->hashTable + i)->getTamanho() < tamMin)
+				if (!this->isEmpty(i) && (this->hashTable + i)->getTamanho() < tamMin)
 					tamMin = (this->hashTable + i)->getTamanho();
 
-				if ((this->hashTable + i)->getTamanho() > tamMax)
+				if (!this->isEmpty(i) && (this->hashTable + i)->getTamanho() > tamMax)
 					tamMax = (this->hashTable + i)->getTamanho();
 				/////////////////////////////////////////////////////////
-				if ((this->hashTable + prox))
+				if (!this->isEmpty(i + 1) && ((i + 1) - atual) < menorValor)
+				{
+					menorValor = (i + 1) - atual;
+					atual = (i + 1);
+				}
 			}
+
+			if (tamMax - tamMin >= this->diferencaDeTam || menorValor >= this->diferencaDePos)
+				return this->aumentarHashTable();
 		}
 		return false;
 	}
@@ -298,7 +308,7 @@ protected:
 	// Verifica se a lista de uma determinada posição está vaiza
 	bool isEmpty(const int& pos) const
 	{
-		return (this->hashTable + pos)->isEmpty();
+		return (this->hashTable + pos) == nullptr || (this->hashTable + pos)->isEmpty();
 	}
 private:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//

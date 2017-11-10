@@ -42,7 +42,7 @@ int main(int argc, _TCHAR* argv[])
 	HashTable<string, int> hash;
 	char espaco = ' ';
 	string lido = "";
-	string default_command = "";
+	string default_command = "insert a 13 aa 13 aaa 13 aaaa 13 aaaaa 13 aaaaaa 13";
 
 	string resposta = "";
 	string valor1 = "";
@@ -58,7 +58,7 @@ int main(int argc, _TCHAR* argv[])
 	cout << "BOT> Deseja criar uma HashTable padrao?" << endl;
 	cout << "USER> <[s]/n> ";
 	cin >> resposta;
-
+	/*
 	if (resposta == "n" || resposta == "N")
 	{
 		cout << "BOT> HashTable personalizada selecionada" << endl;
@@ -72,13 +72,13 @@ int main(int argc, _TCHAR* argv[])
 		cin >> valor3;
 		if (!ehNumero(valor1) || !ehNumero(valor2) || !ehNumero(valor3))
 			goto pedirTipoHashTable;
-		hash = HashTable<string, int>(false, atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()));
+		hash = HashTable<string, int>();
 	}
 	else
-	{
+	{*/
 		cout << "BOT> HashTable padrao selecionada" << endl;
-		hash = HashTable<string, int>(true);
-	}
+		hash = HashTable<string, int>();
+	//}
 	cout << "BOT> HashTable criada" << endl;
 
 	// loop infinito para o menu
