@@ -42,12 +42,17 @@ int main(int argc, _TCHAR* argv[])
 	HashTable<string, int> hash;
 	char espaco = ' ';
 	string lido = "";
-	string default_command = "insert a 13 aa 13 aaa 13 aaaa 13 aaaaa 13 aaaaaa 13";
+	string default_command = "";
 
 	string resposta = "";
+	string outraResposta = "";
 	string valor1 = "";
 	string valor2 = "";
 	string valor3 = "";
+	string valor4 = "";
+	string valor5 = "";
+	string valor6 = "";
+	string valor7 = "";
 
 	// escrevendo o painel padrão
 	cout << "BOT> Ola, digite 'insert <chave> <valor>' ou 'inserir <chave> <valor>' para inserir o NUMERO INTEIRO  na CHAVE STRING" << endl;
@@ -58,7 +63,11 @@ int main(int argc, _TCHAR* argv[])
 	cout << "BOT> Deseja criar uma HashTable padrao?" << endl;
 	cout << "USER> <[s]/n> ";
 	cin >> resposta;
-	/*
+
+	cout << "BOT> Deseja criar uma HashTable radical?" << endl;
+	cout << "USER> <[s]/n> ";
+	cin >> outraResposta;
+	
 	if (resposta == "n" || resposta == "N")
 	{
 		cout << "BOT> HashTable personalizada selecionada" << endl;
@@ -68,18 +77,47 @@ int main(int argc, _TCHAR* argv[])
 		cin >> valor1;
 		cout << "BOT> Taxa de crescimento: " << endl;
 		cin >> valor2;
-		cout << "BOT> Quantidade maxima de ocupacao: " << endl;
+		cout << "BOT> Taxa de ocupacao(em porcentagem): " << endl;
 		cin >> valor3;
-		if (!ehNumero(valor1) || !ehNumero(valor2) || !ehNumero(valor3))
+		cout << "BOT> Tamanho das listas: " << endl;
+		cin >> valor4;
+		cout << "BOT> Operação(+ ou *): " << endl;
+		cin >> valor5;
+		if (!ehNumero(valor1) || !ehNumero(valor2) || !ehNumero(valor3) || !ehNumero(valor4) || valor5 != "*" || valor5 != "+")
 			goto pedirTipoHashTable;
-		hash = HashTable<string, int>();
+		
+		if (outraResposta == "n" || outraResposta == "N")
+		{
+			pedirTipoRadicalHashTable:
+			cout << "BOT> Diferença de tamanho: " << endl;
+			cin >> valor6;
+			cout << "BOT> Diferença de posicao: " << endl;
+			cin >> valor7;
+
+			hash = HashTable<string, int>(true, atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()), atoi(valor4.c_str()), valor5[0], atoi(valor6.c_str()), atoi(valor7.c_str()));
+		}
+		else
+			hash = HashTable<string, int>(atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()), atoi(valor4.c_str()), valor5[0]);
 	}
 	else
-	{*/
-		cout << "BOT> HashTable padrao selecionada" << endl;
-		hash = HashTable<string, int>();
-	//}
-	cout << "BOT> HashTable criada" << endl;
+	{
+		cout << endl;
+		if (outraResposta == "n" || outraResposta == "N")
+		{
+			cout << "BOT> HashTable padrao selecionada" << endl;
+			hash = HashTable<string, int>();
+		}
+		else
+		{
+			cout << "BOT> HashTable padrao radical selecionada" << endl;
+			hash = HashTable<string, int>(true);
+		}
+		cout << "BOT> Operador de crescimento: fatorial(!) Tamanho: 4!; Quantidade maxima de dados: " << hash.getQtdMaxDeDados() 
+			 << "; Tamanho maximo das listas: " << hash.getTamMaxDasListas() << "; ";
+		if (hash.isRadical())
+			cout << "Diferenca de tamanho: " << hash.getDiferencaDeTam() << "; Diferenca de Posicao: " << hash.getDiferencaDePos() << ";" << endl;
+	}
+	
 
 	// loop infinito para o menu
 	while (1)
@@ -87,7 +125,7 @@ int main(int argc, _TCHAR* argv[])
 		// deixamos o usuário escolher o que deseja
 		if (default_command == "")
 		{
-			cout << endl << "USER> ";
+			cout << endl << endl << "USER> ";
 			getline(cin, lido);
 		}
 		else
@@ -146,6 +184,7 @@ int main(int argc, _TCHAR* argv[])
 		}
 		// printamos o resultado da árvore, como ela está no momento
 		cout << hash << endl;
+
 	}
 	return 0;
 }

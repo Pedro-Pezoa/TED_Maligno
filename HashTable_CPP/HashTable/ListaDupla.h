@@ -19,7 +19,12 @@ public:
 
 	ListaDupla(const ListaDupla<Tipo>& _original) : inicio(_original.getInicio()), fim(_original.getFim()), atual(_original.getAtual()), tamanho(_original.getTamanho()), indexAtual(_original.getIndexAtual()) {}
 
-	~ListaDupla() {}
+	~ListaDupla() 
+	{
+		delete(this->inicio); 
+		delete(this->fim);
+		delete(this->atual);
+	}
 
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 	//---------------------------------------------------------------GETTERS E SETTERS-----------------------------------------------------------------------//
@@ -151,10 +156,21 @@ public:
 	{
 		if (!this->isEmpty())
 		{
-			NoLista<Tipo>* novoInicio = this->inicio->getProximo();
-			novoInicio->setAnterior(nullptr);
-			delete(this->inicio);
-			this->inicio = new NoLista<Tipo>(novoInicio);
+			if (this->getTamanho() == 1)
+			{
+				delete(this->inicio);
+				delete(this->fim);
+				this->inicio = new NoLista<Tipo>();
+				this->fim = new NoLista<Tipo>();
+			}
+			else
+			{
+				NoLista<Tipo>* novoInicio = this->inicio->getProximo();
+				delete(this->inicio);
+
+				novoInicio->setAnterior(nullptr);
+				this->inicio = new NoLista<Tipo>(novoInicio);
+			}
 			tamanho--;
 			return true;
 		}
