@@ -13,7 +13,7 @@ using namespace std;
 #define DEFAULT_TAMANHO_MAXIMO_LISTA 3
 #define DEFAULT_OPERACAO '*'
 #define DEFAULT_DIFERENCA_TAM 2
-#define DEFAULT_DIFERENCA_POS 2
+#define DEFAULT_DIFERENCA_POS 5
 
 template <class TipoKey, class TipoDado>
 
@@ -41,23 +41,29 @@ public:
 	// Construtor principal, se o primeiro parâmetro boolean for true, o construtor instância os atributos na forma padrão, se for false o construtor instância com os dados do usuário
 	HashTable(const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, const char& _novaOperacao) : 
 			  size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), 
-			  qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)), operacao(_novaOperacao)
+			  qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)), operacao(_novaOperacao), ehRadical(false)
 	{
 		if (_novoLength <= 0 || _novaTaxaDeCrescimento <= 0 || _novaTaxaDeOcupacao <= 0 || _novoTamanhoMaximoLista <= 0 || (_novaOperacao != '*' && _novaOperacao != '+') || _novaTaxaDeOcupacao >= 100)
+		{
+			cout << "Valores inválidos para a HashTable, criando versão padrão." << endl;
 			*this = HashTable<TipoKey, TipoDado>();
+		}
 		else
 			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 	}
 
 	//Construtor radical
-	HashTable(const bool& ehRadical, const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, 
+	HashTable(const bool& _novoehRadical, const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, 
 			  const char& _novaOperacao, const unsigned int _novaDiferencaDeTam, const unsigned int _novaDiferencaDePos) :
 			  size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)),
-			  operacao(_novaOperacao), diferencaDePos(_novaDiferencaDePos), diferencaDeTam(_novaDiferencaDeTam)
+			  operacao(_novaOperacao), diferencaDePos(_novaDiferencaDePos), diferencaDeTam(_novaDiferencaDeTam), ehRadical(_novoehRadical)
 	{
 		if (_novoLength <= 0 || _novaTaxaDeCrescimento <= 0 || _novaTaxaDeOcupacao <= 0 || _novoTamanhoMaximoLista <= 0 || (_novaOperacao != '*' && _novaOperacao != '+') || _novaTaxaDeOcupacao >= 100 ||
 			_novaDiferencaDePos <= 0 || _novaDiferencaDeTam <= 0)
+		{
+			cout << "Valores inválidos para a HashTable, criando versão padrão." << endl;
 			*this = HashTable<TipoKey, TipoDado>();
+		}
 		else
 			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 	}
@@ -127,19 +133,7 @@ public:
 	// Retorna se incluiu com sucesso ou não
 	bool inserir(const TipoKey& key, const TipoDado& dado)
 	{
-		if (existe(key))
-			return false;
-
-		NoHashTable novoNo = NoHashTable(key, dado);
-		int pos = this->calcularPosicao(key);
-
-		if (this->isEmpty(pos))
-			*(this->hashTable + pos) = ListaDupla<NoHashTable>();
-		(this->hashTable + pos)->inserirNoFim(novoNo);
-
-		this->size++;
-		this->precisaAumentar();
-		return true;
+		return inserir(key, dado, true);
 	}
 
 	// Retorna o dado removido
@@ -258,6 +252,24 @@ protected:
 	//---------------------------------------------------------------MÉTODOS AUXILIARES-----------------------------------------------------------------------//
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------//
 
+	bool inserir(const TipoKey& key, const TipoDado& dado, const bool& vaiAumenta)
+	{
+		if (existe(key))
+			return false;
+
+		NoHashTable novoNo = NoHashTable(key, dado);
+		int pos = this->calcularPosicao(key);
+
+		if (this->isEmpty(pos))
+			*(this->hashTable + pos) = ListaDupla<NoHashTable>();
+		(this->hashTable + pos)->inserirNoFim(novoNo);
+
+		this->size++;
+		if (vaiAumenta)
+			this->precisaAumentar();
+		return true;
+	}
+
 	// Verifica se precisa aumentar a HashTable
 	bool precisaAumentar()
 	{
@@ -277,8 +289,9 @@ protected:
 			int tamMin = this->tamMaxDasListas+1;
 			int tamMax = 0;
 			/////////////////////////////////////////////////////////////
-			int atual = 0;
+			int atual = -1;
 			int menorValor = this->length+1;
+			int qtosPercorreu = 0;
 
 			for (int i = 0; i < this->length; i++)
 			{
@@ -288,14 +301,16 @@ protected:
 				if (!this->isEmpty(i) && (this->hashTable + i)->getTamanho() > tamMax)
 					tamMax = (this->hashTable + i)->getTamanho();
 				/////////////////////////////////////////////////////////
-				if (!this->isEmpty(i + 1) && ((i + 1) - atual) < menorValor)
+				if (!this->isEmpty(i + 1) && ((i + 1) - atual) < menorValor && qtosPercorreu != this->size)
 				{
-					menorValor = (i + 1) - atual;
+					if (atual != -1)
+						menorValor = (i + 1) - atual;
+					qtosPercorreu++;
 					atual = (i + 1);
 				}
 			}
 
-			if (tamMax - tamMin >= this->diferencaDeTam || menorValor >= this->diferencaDePos)
+			if (tamMax - tamMin >= this->diferencaDeTam || (this->size > 1 && menorValor <= this->diferencaDePos))
 				return this->aumentarHashTable();
 		}
 		return false;
@@ -309,7 +324,7 @@ protected:
 		HashTable<TipoKey, TipoDado>* aux = nullptr;
 		if (this->ehPadrao)
 		{
-			if (ehRadical)
+			if (this->ehRadical)
 				aux = new HashTable<TipoKey, TipoDado>(true, this->fatorial(++this->taxaDeCrescimento), this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operacao, this->diferencaDeTam, this->diferencaDePos);
 			else
 				aux = new HashTable<TipoKey, TipoDado>(this->fatorial(++this->taxaDeCrescimento), this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operacao);
@@ -346,7 +361,7 @@ protected:
 	void transfereDados(const ListaDupla<NoHashTable>& lista, HashTable<TipoKey, TipoDado>& hash)
 	{
 		for (int i = 0; i < lista.getTamanho(); i++)
-			hash.inserir(lista.operator[](i).getChave(), lista.operator[](i).getDado());
+			hash.inserir(lista.operator[](i).getChave(), lista.operator[](i).getDado(), false);
 	}
 
 	// Método que calcula a posição do dado com a sua respectiva chave

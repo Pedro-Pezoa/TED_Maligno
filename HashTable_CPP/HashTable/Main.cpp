@@ -59,7 +59,6 @@ int main(int argc, _TCHAR* argv[])
 	cout << "BOT> Digite 'delete X' ou 'deletar X' para deletar a CHAVE X" << endl;
 	cout << "BOT> Digite 'exit' ou 'sair' para sair" << endl << endl;
 
-	pedirTipoHashTable:
 	cout << "BOT> Deseja criar uma HashTable padrao?" << endl;
 	cout << "USER> <[s]/n> ";
 	cin >> resposta;
@@ -70,34 +69,38 @@ int main(int argc, _TCHAR* argv[])
 	
 	if (resposta == "n" || resposta == "N")
 	{
+		pedirTipoHashTable:
 		cout << "BOT> HashTable personalizada selecionada" << endl;
 		cout << "BOT> Digite os respectivos dados (sem ser zero)" << endl;
 
-		cout << "BOT> Tamanho: " << endl;
+		cout << "BOT> Tamanho: ";
 		cin >> valor1;
-		cout << "BOT> Taxa de crescimento: " << endl;
+		cout << endl << "BOT> Taxa de crescimento: ";
 		cin >> valor2;
-		cout << "BOT> Taxa de ocupacao(em porcentagem): " << endl;
+		cout << endl << "BOT> Taxa de ocupacao(em porcentagem): ";
 		cin >> valor3;
-		cout << "BOT> Tamanho das listas: " << endl;
+		cout << endl << "BOT> Tamanho das listas: ";
 		cin >> valor4;
-		cout << "BOT> Operação(+ ou *): " << endl;
+		cout << endl << "BOT> Operação(+ ou *): ";
 		cin >> valor5;
-		if (!ehNumero(valor1) || !ehNumero(valor2) || !ehNumero(valor3) || !ehNumero(valor4) || valor5 != "*" || valor5 != "+")
+		if (!ehNumero(valor1) || !ehNumero(valor2) || !ehNumero(valor3) || !ehNumero(valor4) || (valor5 != "*" && valor5 != "+"))
 			goto pedirTipoHashTable;
 		
 		if (outraResposta == "n" || outraResposta == "N")
+			hash = HashTable<string, int>(atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()), atoi(valor4.c_str()), valor5[0]);
+		else
 		{
 			pedirTipoRadicalHashTable:
-			cout << "BOT> Diferença de tamanho: " << endl;
+			cout << endl << "BOT> Diferença de tamanho: ";
 			cin >> valor6;
-			cout << "BOT> Diferença de posicao: " << endl;
+			cout << endl << "BOT> Diferença de posicao: ";
 			cin >> valor7;
+
+			if (!ehNumero(valor6) || !ehNumero(valor7))
+				goto pedirTipoRadicalHashTable;
 
 			hash = HashTable<string, int>(true, atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()), atoi(valor4.c_str()), valor5[0], atoi(valor6.c_str()), atoi(valor7.c_str()));
 		}
-		else
-			hash = HashTable<string, int>(atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()), atoi(valor4.c_str()), valor5[0]);
 	}
 	else
 	{
