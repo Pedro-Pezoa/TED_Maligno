@@ -12,8 +12,8 @@ using namespace std;
 #define DEFAULT_TAXA_OCUPACAO 50
 #define DEFAULT_TAMANHO_MAXIMO_LISTA 3
 #define DEFAULT_OPERACAO '*'
-#define DEFAULT_DIFERENCA_TAM 2
-#define DEFAULT_DIFERENCA_POS 5
+#define DEFAULT_DIFERENCA_TAM 3
+#define DEFAULT_DIFERENCA_POS 4
 
 template <class TipoKey, class TipoDado>
 
@@ -24,13 +24,14 @@ public:
 	//------------------------------------------------------------------CONSTRUTORES-------------------------------------------------------------------------//
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	// Construtor sem argumentos
+	// Construtor padrão sem argumentos
 	HashTable() : size(0), ehPadrao(true), length(DEFAULT_LENGTH), taxaDeCrescimento(DEFAULT_TAXA_CRESCIMENTO), tamMaxDasListas(DEFAULT_TAMANHO_MAXIMO_LISTA), 
 		qtdMaxDeDados(DEFAULT_LENGTH * (DEFAULT_TAXA_OCUPACAO / 100.0)), operacao(DEFAULT_OPERACAO), ehRadical(false)
 	{
 		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 	}
 
+	// Construtor padrão e radical sem argumentos
 	HashTable(const bool& _ehRadical) : size(0), ehPadrao(true), length(DEFAULT_LENGTH), taxaDeCrescimento(DEFAULT_TAXA_CRESCIMENTO), tamMaxDasListas(DEFAULT_TAMANHO_MAXIMO_LISTA),
 		qtdMaxDeDados(DEFAULT_LENGTH * (DEFAULT_TAXA_OCUPACAO / 100.0)), operacao(DEFAULT_OPERACAO), diferencaDeTam(DEFAULT_DIFERENCA_TAM), diferencaDePos(DEFAULT_DIFERENCA_POS),
 		ehRadical(_ehRadical)
@@ -38,7 +39,7 @@ public:
 		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 	}
 
-	// Construtor principal, se o primeiro parâmetro boolean for true, o construtor instância os atributos na forma padrão, se for false o construtor instância com os dados do usuário
+	// Construtor personalizado, que tem parâmetros de tamanho, taxa de crescimento, taxa de ocupação, tamanho máximo das listas e a operação de crescimento da hashTable
 	HashTable(const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, const char& _novaOperacao) : 
 			  size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), 
 			  qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)), operacao(_novaOperacao), ehRadical(false)
@@ -52,7 +53,7 @@ public:
 			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 	}
 
-	//Construtor radical
+	// Construtor personalizado e radical, que tem os mesmos parâmetros do construtor anterior, mas com dois outros parâmetros de diferença de posição e de tamanho
 	HashTable(const bool& _novoehRadical, const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, 
 			  const char& _novaOperacao, const unsigned int _novaDiferencaDeTam, const unsigned int _novaDiferencaDePos) :
 			  size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)),
@@ -78,49 +79,40 @@ public:
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------//
-	//----------------------------------------------------------------GETTERS E SETTERS-----------------------------------------------------------------------//
+	//---------------------------------------------------------------------GETTERS----------------------------------------------------------------------------//
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	unsigned int getSize() const
-	{
-		return this->size;
-	}
-
-	unsigned int getLength() const
-	{
-		return this->length;
-	}
-
-	unsigned int getTaxaDeCrescimento() const
-	{
-		return this->taxaDeCrescimento;
-	}
-
+	// Retorna o tamanho máximo que as listas devem ter
 	unsigned int getTamMaxDasListas() const
 	{
 		return this->tamMaxDasListas;
 	}
 
+	// Retorna a quantidade máxima de dados que a hashtable deve ter
 	unsigned int getQtdMaxDeDados() const
 	{
 		return this->qtdMaxDeDados;
 	}
 
+	// Retorna a diferença máxima de tamanho das listas dentro da hashTable
 	unsigned int getDiferencaDeTam() const
 	{
 		return this->diferencaDeTam;
 	}
 
+	// Retorna a diferença máxima de posição dos nós entre sí
 	unsigned int getDiferencaDePos() const
 	{
 		return this->diferencaDePos;
 	}
 
+	// Retorna se a hashtable é padrão
 	bool isPadrao() const
 	{
 		return this->ehPadrao;
 	}
 
+	// Retorna se a hashtable é radical
 	bool isRadical() const
 	{
 		return this->ehRadical;
@@ -130,13 +122,13 @@ public:
 	//---------------------------------------------------------------MÉTODOS PRINCIPAIS-----------------------------------------------------------------------//
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------//
 
-	// Retorna se incluiu com sucesso ou não
+	// Retorna se incluiu com sucesso ou não, chamando o método de incluir protegido
 	bool inserir(const TipoKey& key, const TipoDado& dado)
 	{
 		return inserir(key, dado, true);
 	}
 
-	// Retorna o dado removido
+	// Retorna se o dado foi removido com sucesso
 	bool deletar(const TipoKey& key)
 	{
 		if (!existe(key))
@@ -252,6 +244,7 @@ protected:
 	//---------------------------------------------------------------MÉTODOS AUXILIARES-----------------------------------------------------------------------//
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------//
 
+	// Método protegido que insere o nó da hashtable e verifica se é necessário aumentar o tamanho da hashtable, caso a inserção venha do método aumentarHashTable, não será preciso verificar
 	bool inserir(const TipoKey& key, const TipoDado& dado, const bool& vaiAumenta)
 	{
 		if (existe(key))
@@ -288,7 +281,7 @@ protected:
 		{
 			int tamMin = this->tamMaxDasListas+1;
 			int tamMax = 0;
-			/////////////////////////////////////////////////////////////
+			
 			int atual = -1;
 			int menorValor = this->length+1;
 			int qtosPercorreu = 0;
@@ -300,7 +293,7 @@ protected:
 
 				if (!this->isEmpty(i) && (this->hashTable + i)->getTamanho() > tamMax)
 					tamMax = (this->hashTable + i)->getTamanho();
-				/////////////////////////////////////////////////////////
+			
 				if (!this->isEmpty(i + 1) && ((i + 1) - atual) < menorValor && qtosPercorreu != this->size)
 				{
 					if (atual != -1)
@@ -310,13 +303,13 @@ protected:
 				}
 			}
 
-			if (tamMax - tamMin >= this->diferencaDeTam || (this->size > 1 && menorValor <= this->diferencaDePos))
+			if (tamMax - tamMin >= this->diferencaDeTam || (this->size > 1 && menorValor < this->diferencaDePos))
 				return this->aumentarHashTable();
 		}
 		return false;
 	}
 
-	// Aumentar a HashTable ou na forma padrão ou na forma personalizada, dependendo da variável ehPadrao
+	// Aumentar a HashTable ou na forma padrão ou na forma personalizada, dependendo da variável ehPadrao e ehRadical
 	bool aumentarHashTable()
 	{
 		cout << "BOT>Desbalaceou a HASHTABLE" << endl;
@@ -350,7 +343,7 @@ protected:
 		}
 
 		*this = HashTable<TipoKey, TipoDado>(*aux);
-		cout << "BOT>HASHTABLE alterada --> Tamanho: " << this->getLength() << "; Quantidade maxima de dados: " << this->getQtdMaxDeDados() << "; Tamanho maximo das listas: " << this->getTamMaxDasListas() << "; " << endl;
+		cout << "BOT>HASHTABLE alterada --> Tamanho: " << this->length << "; Quantidade maxima de dados: " << this->qtdMaxDeDados << "; Tamanho maximo das listas: " << this->tamMaxDasListas << "; " << endl;
 		if (this->ehRadical)
 			cout << "Diferenca de tamanho: " << this->diferencaDeTam << "; Diferenca de Posicao: " << this->diferencaDePos << ";" << endl;
 		cout << endl;

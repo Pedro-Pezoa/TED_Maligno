@@ -69,10 +69,11 @@ int main(int argc, _TCHAR* argv[])
 	
 	if (resposta == "n" || resposta == "N")
 	{
-		pedirTipoHashTable:
+		
 		cout << "BOT> HashTable personalizada selecionada" << endl;
 		cout << "BOT> Digite os respectivos dados (sem ser zero)" << endl;
 
+		pedirTipoHashTable:
 		cout << "BOT> Tamanho: ";
 		cin >> valor1;
 		cout << endl << "BOT> Taxa de crescimento: ";
@@ -81,24 +82,28 @@ int main(int argc, _TCHAR* argv[])
 		cin >> valor3;
 		cout << endl << "BOT> Tamanho das listas: ";
 		cin >> valor4;
-		cout << endl << "BOT> Operação(+ ou *): ";
+		cout << endl << "BOT> Operacao(+ ou *): ";
 		cin >> valor5;
 		if (!ehNumero(valor1) || !ehNumero(valor2) || !ehNumero(valor3) || !ehNumero(valor4) || (valor5 != "*" && valor5 != "+"))
+		{
+			cout << endl << "BOT> Valores invalidos";
 			goto pedirTipoHashTable;
-		
+		}
 		if (outraResposta == "n" || outraResposta == "N")
 			hash = HashTable<string, int>(atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()), atoi(valor4.c_str()), valor5[0]);
 		else
 		{
 			pedirTipoRadicalHashTable:
-			cout << endl << "BOT> Diferença de tamanho: ";
+			cout << endl << "BOT> Diferenca de tamanho: ";
 			cin >> valor6;
-			cout << endl << "BOT> Diferença de posicao: ";
+			cout << endl << "BOT> Diferenca de posicao: ";
 			cin >> valor7;
 
 			if (!ehNumero(valor6) || !ehNumero(valor7))
+			{
+				cout << endl << "BOT> Valores invalidos";
 				goto pedirTipoRadicalHashTable;
-
+			}
 			hash = HashTable<string, int>(true, atoi(valor1.c_str()), atoi(valor2.c_str()), atoi(valor3.c_str()), atoi(valor4.c_str()), valor5[0], atoi(valor6.c_str()), atoi(valor7.c_str()));
 		}
 	}
