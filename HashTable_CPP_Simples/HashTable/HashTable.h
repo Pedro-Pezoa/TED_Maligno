@@ -12,8 +12,6 @@ using namespace std;
 #define DEFAULT_TAXA_OCUPACAO 50
 #define DEFAULT_TAMANHO_MAXIMO_LISTA 3
 #define DEFAULT_OPERACAO '*'
-#define DEFAULT_DIFERENCA_TAM 3
-#define DEFAULT_DIFERENCA_POS 4
 
 template <class TipoKey, class TipoDado>
 
@@ -25,97 +23,31 @@ public:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	// Construtor padrão sem argumentos
-	HashTable() : qtosDados(0), ehPadrao(true), length(DEFAULT_LENGTH), taxaDeCrescimento(DEFAULT_TAXA_CRESCIMENTO), tamMaxDasListas(DEFAULT_TAMANHO_MAXIMO_LISTA), 
-		qtdMaxDeDados(DEFAULT_LENGTH * (DEFAULT_TAXA_OCUPACAO / 100.0)), operadorDeCrescimento(DEFAULT_OPERACAO), ehRadical(false)
+	HashTable() : size(0), ehPadrao(true), length(DEFAULT_LENGTH), taxaDeCrescimento(DEFAULT_TAXA_CRESCIMENTO), tamMaxDasListas(DEFAULT_TAMANHO_MAXIMO_LISTA), 
+		qtdMaxDeDados(DEFAULT_LENGTH * (DEFAULT_TAXA_OCUPACAO / 100.0)), operadorDeCrescimento(DEFAULT_OPERACAO)
 	{
-		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * qtosDadosof(ListaDupla<NoHashTable>));
-	}
-
-	// Construtor padrão e radical sem argumentos
-	HashTable(const bool& _ehRadical) : qtosDados(0), ehPadrao(true), length(DEFAULT_LENGTH), taxaDeCrescimento(DEFAULT_TAXA_CRESCIMENTO), tamMaxDasListas(DEFAULT_TAMANHO_MAXIMO_LISTA),
-		qtdMaxDeDados(DEFAULT_LENGTH * (DEFAULT_TAXA_OCUPACAO / 100.0)), operadorDeCrescimento(DEFAULT_OPERACAO), diferencaDeTam(DEFAULT_DIFERENCA_TAM), diferencaDePos(DEFAULT_DIFERENCA_POS),
-		ehRadical(_ehRadical)
-	{
-		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * qtosDadosof(ListaDupla<NoHashTable>));
+		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 	}
 
 	// Construtor personalizado, que tem parâmetros de tamanho, taxa de crescimento, taxa de ocupação, tamanho máximo das listas e a operação de crescimento da hashTable
 	HashTable(const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, const char& _novaOperacao) : 
-			  qtosDados(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), 
-			  qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)), operadorDeCrescimento(_novaOperacao), ehRadical(false)
+			  size(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), 
+			  qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)), operadorDeCrescimento(_novaOperacao)
 	{
 		if (_novoLength <= 0 || _novaTaxaDeCrescimento <= 0 || _novaTaxaDeOcupacao <= 0 || _novoTamanhoMaximoLista <= 0 || (_novaOperacao != '*' && _novaOperacao != '+') || _novaTaxaDeOcupacao >= 100)
-		{
-			cout << "Valores inválidos para a HashTable, criando versão padrão." << endl;
 			*this = HashTable<TipoKey, TipoDado>();
-		}
+		
 		else
-			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * qtosDadosof(ListaDupla<NoHashTable>));
-	}
-
-	// Construtor personalizado e radical, que tem os mesmos parâmetros do construtor anterior, mas com dois outros parâmetros de diferença de posição e de tamanho
-	HashTable(const bool& _novoehRadical, const unsigned int& _novoLength, const unsigned int& _novaTaxaDeCrescimento, const unsigned int& _novaTaxaDeOcupacao, const unsigned int& _novoTamanhoMaximoLista, 
-			  const char& _novaOperacao, const unsigned int _novaDiferencaDeTam, const unsigned int _novaDiferencaDePos) :
-			  qtosDados(0), ehPadrao(false), length(_novoLength), taxaDeCrescimento(_novaTaxaDeCrescimento), tamMaxDasListas(_novoTamanhoMaximoLista), qtdMaxDeDados(_novoLength * (_novaTaxaDeOcupacao / 100.0)),
-			  operadorDeCrescimento(_novaOperacao), diferencaDePos(_novaDiferencaDePos), diferencaDeTam(_novaDiferencaDeTam), ehRadical(_novoehRadical)
-	{
-		if (_novoLength <= 0 || _novaTaxaDeCrescimento <= 0 || _novaTaxaDeOcupacao <= 0 || _novoTamanhoMaximoLista <= 0 || (_novaOperacao != '*' && _novaOperacao != '+') || _novaTaxaDeOcupacao >= 100 ||
-			_novaDiferencaDePos <= 0 || _novaDiferencaDeTam <= 0)
-		{
-			cout << "Valores inválidos para a HashTable, criando versão padrão." << endl;
-			*this = HashTable<TipoKey, TipoDado>();
-		}
-		else
-			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * qtosDadosof(ListaDupla<NoHashTable>));
+			this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 	}
 
 	// Construtor de cópia
-	HashTable(const HashTable<TipoKey, TipoDado>& outro) : qtosDados(outro.qtosDados), ehPadrao(outro.ehPadrao), length(outro.length), taxaDeCrescimento(outro.taxaDeCrescimento), tamMaxDasListas(outro.tamMaxDasListas), 
-		qtdMaxDeDados(outro.qtdMaxDeDados), operadorDeCrescimento(outro.operadorDeCrescimento), ehRadical(outro.ehRadical), diferencaDeTam(outro.diferencaDeTam), diferencaDePos(outro.diferencaDePos)
+	HashTable(const HashTable<TipoKey, TipoDado>& outro) : size(outro.size), ehPadrao(outro.ehPadrao), length(outro.length), taxaDeCrescimento(outro.taxaDeCrescimento), tamMaxDasListas(outro.tamMaxDasListas), 
+		qtdMaxDeDados(outro.qtdMaxDeDados), operadorDeCrescimento(outro.operadorDeCrescimento)
 	{
-		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * qtosDadosof(ListaDupla<NoHashTable>));
+		this->hashTable = (ListaDupla<NoHashTable>*)malloc(this->length * sizeof(ListaDupla<NoHashTable>));
 		for (int i = 0; i < length; i++)
 			*(this->hashTable + i) = *(outro.hashTable + i);
-	}
-
-	//--------------------------------------------------------------------------------------------------------------------------------------------------------//
-	//---------------------------------------------------------------------GETTERS----------------------------------------------------------------------------//
-	//--------------------------------------------------------------------------------------------------------------------------------------------------------//
-
-	// Retorna o tamanho máximo que as listas devem ter
-	unsigned int getTamMaxDasListas() const
-	{
-		return this->tamMaxDasListas;
-	}
-
-	// Retorna a quantidade máxima de dados que a hashtable deve ter
-	unsigned int getQtdMaxDeDados() const
-	{
-		return this->qtdMaxDeDados;
-	}
-
-	// Retorna a diferença máxima de tamanho das listas dentro da hashTable
-	unsigned int getDiferencaDeTam() const
-	{
-		return this->diferencaDeTam;
-	}
-
-	// Retorna a diferença máxima de posição dos nós entre sí
-	unsigned int getDiferencaDePos() const
-	{
-		return this->diferencaDePos;
-	}
-
-	// Retorna se a hashtable é padrão
-	bool isPadrao() const
-	{
-		return this->ehPadrao;
-	}
-
-	// Retorna se a hashtable é radical
-	bool isRadical() const
-	{
-		return this->ehRadical;
 	}
 
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -149,7 +81,7 @@ public:
 		else
 			return false;
 		 
-		this->qtosDados--;
+		this->size--;
 		return true;
 	}
 
@@ -257,7 +189,7 @@ protected:
 			*(this->hashTable + pos) = ListaDupla<NoHashTable>();
 		(this->hashTable + pos)->inserirNoFim(novoNo);
 
-		this->qtosDados++;
+		this->size++;
 		if (vaiAumenta)
 			this->precisaAumentar();
 		return true;
@@ -266,7 +198,7 @@ protected:
 	// Verifica se precisa aumentar a HashTable
 	bool precisaAumentar()
 	{
-		if (this->qtosDados >= this->qtdMaxDeDados)
+		if (this->size >= this->qtdMaxDeDados)
 			return this->aumentarHashTable();
 		else
 		{
@@ -276,51 +208,17 @@ protected:
 					return this->aumentarHashTable();
 			}
 		}
-
-		if (ehRadical)
-		{
-			int tamMin = this->tamMaxDasListas+1;
-			int tamMax = 0;
-			
-			int atual = -1;
-			int menorValor = this->length+1;
-			int qtosPercorreu = 0;
-
-			for (int i = 0; i < this->length; i++)
-			{
-				if (!this->isEmpty(i) && (this->hashTable + i)->getTamanho() < tamMin)
-					tamMin = (this->hashTable + i)->getTamanho();
-
-				if (!this->isEmpty(i) && (this->hashTable + i)->getTamanho() > tamMax)
-					tamMax = (this->hashTable + i)->getTamanho();
-			
-				if (!this->isEmpty(i + 1) && ((i + 1) - atual) < menorValor && qtosPercorreu != this->qtosDados)
-				{
-					if (atual != -1)
-						menorValor = (i + 1) - atual;
-					qtosPercorreu++;
-					atual = (i + 1);
-				}
-			}
-
-			if (tamMax - tamMin >= this->diferencaDeTam || (this->qtosDados > 1 && menorValor < this->diferencaDePos))
-				return this->aumentarHashTable();
-		}
 		return false;
 	}
 
 	// Aumentar a HashTable ou na forma padrão ou na forma personalizada, dependendo da variável ehPadrao e ehRadical
 	bool aumentarHashTable()
 	{
-		cout << "BOT>Desbalaceou a HASHTABLE" << endl;
 		int novoLength = 0;
 		HashTable<TipoKey, TipoDado>* aux = nullptr;
 		if (this->ehPadrao)
 		{
-			if (this->ehRadical)
-				aux = new HashTable<TipoKey, TipoDado>(true, this->fatorial(++this->taxaDeCrescimento), this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operadorDeCrescimento, this->diferencaDeTam, this->diferencaDePos);
-			else
-				aux = new HashTable<TipoKey, TipoDado>(this->fatorial(++this->taxaDeCrescimento), this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operadorDeCrescimento);
+			aux = new HashTable<TipoKey, TipoDado>(this->fatorial(++this->taxaDeCrescimento), this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operadorDeCrescimento);
 			aux->ehPadrao = true;
 		}
 		else
@@ -329,11 +227,7 @@ protected:
 				novoLength = this->length + this->taxaDeCrescimento;
 			else
 				novoLength = this->length * this->taxaDeCrescimento;
-
-			if (ehRadical)
-				aux = new HashTable<TipoKey, TipoDado>(true, novoLength, this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operadorDeCrescimento, this->diferencaDeTam, this->diferencaDePos);
-			else
-				aux = new HashTable<TipoKey, TipoDado>(novoLength, this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operadorDeCrescimento);
+			aux = new HashTable<TipoKey, TipoDado>(novoLength, this->taxaDeCrescimento, (this->qtdMaxDeDados * 100) / this->length, this->tamMaxDasListas, this->operadorDeCrescimento);
 		}
 
 		for (int i = 0; i < this->length; i++)
@@ -343,10 +237,6 @@ protected:
 		}
 
 		*this = HashTable<TipoKey, TipoDado>(*aux);
-		cout << "BOT>HASHTABLE alterada --> Tamanho: " << this->length << "; Quantidade maxima de dados: " << this->qtdMaxDeDados << "; Tamanho maximo das listas: " << this->tamMaxDasListas << "; " << endl;
-		if (this->ehRadical)
-			cout << "Diferenca de tamanho: " << this->diferencaDeTam << "; Diferenca de Posicao: " << this->diferencaDePos << ";" << endl;
-		cout << endl;
 		return true;
 	}
 
@@ -384,7 +274,7 @@ private:
 	//-------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 	ListaDupla<NoHashTable>* hashTable;
-	unsigned int qtosNos;
+	unsigned int qtosDados;
 	unsigned int length;
 	unsigned int taxaDeCrescimento;
 	unsigned int tamMaxDasListas;
@@ -392,8 +282,4 @@ private:
 	float qtdMaxDeDados;
 	char operadorDeCrescimento;
 	bool ehPadrao;
-
-	bool ehRadical;
-	unsigned int diferencaDeTam;
-	unsigned int diferencaDePos;
 };
